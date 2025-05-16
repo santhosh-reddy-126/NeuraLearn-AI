@@ -1,0 +1,58 @@
+.navbar {
+  width: 100vw;         /* Ensure navbar never exceeds viewport width */
+  max-width: 100vw;     /* Prevent overflow */
+  box-sizing: border-box; /* Include padding in width */
+  overflow-x: hidden;   /* Hide horizontal overflow if any */
+  background: var(--surface, #e2e8f0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 2rem;
+  box-shadow: 0 2px 12px 0 rgba(63,142,252,0.08);
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+}
+
+.navbar-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary, #3F8EFC);
+  letter-spacing: 0.01em;
+}
+
+.navbar-profile {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-profile:hover {
+  background: #e6f0fd;
+}
+
+.navbar-logout {
+  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.5rem 1.3rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px 0 #3F8EFC22;
+}
+
+.navbar-logout:hover {
+  opacity: 0.9;
+}

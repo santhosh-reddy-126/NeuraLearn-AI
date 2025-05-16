@@ -1,0 +1,295 @@
+/* Dashboard Container */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  margin-top: 2rem;
+}
+
+/* Welcome Title */
+.dashboard-title {
+  color: #3F8EFC;
+  font-weight: 700;
+  font-size: 2rem;
+  text-align: center;
+}
+
+/* Subtitle */
+.dashboard-subtitle {
+  color: #6B7280;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Motivation Card (if used) */
+.dashboard-motivation {
+  margin-top: 2rem;
+  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
+  color: #fff;
+  padding: 1.1rem 1.3rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 1.08rem;
+  box-shadow: 0 2px 12px 0 #3F8EFC22;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+  line-height: 1.6;
+}
+
+/* Ask AI Section (if used) */
+.dashboard-askai {
+  margin-top: 2.5rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px 0 #3F8EFC11;
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 350px;
+  width: 100%;
+}
+
+.dashboard-askai h2 {
+  color: #3F8EFC;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.askai-input {
+  width: 100%;
+  max-width: 260px;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  outline: none;
+  background: #fff;
+  color: #222;
+}
+
+.askai-btn {
+  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.6rem 1.5rem;
+  cursor: not-allowed;
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+/* Main Dashboard Layout */
+.dashboard-main {
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-height: 80vh;
+  position: relative;
+}
+
+/* Card Row Layout */
+.dashboard-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Card Style */
+.dashboard-card {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px 0 rgba(63,142,252,0.10);
+  padding: 2rem 2.2rem;
+  min-width: 270px;
+  max-width: 350px;
+  flex: 1 1 300px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-card .dashboard-title {
+  color: #3F8EFC;
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-subtitle {
+  color: #6B7280;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.motivation-card .dashboard-motivation-title {
+  color: #3F8EFC;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+
+.dashboard-motivation {
+  color: #222;
+  font-size: 1.08rem;
+  text-align: center;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Floating Ask AI Button */
+.askai-fab {
+  position: fixed;
+  right: 2.5rem;
+  bottom: 2.5rem;
+  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 1.5rem;
+  padding: 0.9rem 2rem;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 24px 0 rgba(63,142,252,0.15);
+  cursor: pointer;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.askai-fab:hover {
+  opacity: 0.92;
+  box-shadow: 0 8px 32px 0 rgba(63,142,252,0.18);
+}
+
+/* Chatbox Overlay */
+.askai-chatbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30,40,60,0.18);
+  z-index: 1002;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+/* Chatbox */
+.askai-chatbox {
+  background: #fff;
+  border-radius: 1.2rem 1.2rem 0 0;
+  box-shadow: 0 4px 32px 0 rgba(63,142,252,0.18);
+  width: 340px;
+  max-width: 95vw;
+  margin: 0 2.5rem 2.5rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  animation: fadeInUp 0.3s;
+}
+
+.askai-chatbox-header {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 700;
+  color: #3F8EFC;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+.askai-chatbox-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #3F8EFC;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* Chatbox Body & Messages */
+.askai-chatbox-body {
+  padding: 1.2rem;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: #f7f9fb;
+}
+
+.askai-messages {
+  flex: 1;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.askai-message {
+  margin-bottom: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+  max-width: 80%;
+  word-break: break-word;
+  font-size: 1rem;
+}
+
+.askai-message.user {
+  background: #3F8EFC;
+  color: #fff;
+  align-self: flex-end;
+}
+
+.askai-message.ai {
+  background: #e2e8f0;
+  color: #222;
+  align-self: flex-start;
+}
+
+/* Chatbox Input Row */
+.askai-chatbox-input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.askai-chatbox-input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+  border: 1.5px solid #e2e8f0;
+  font-size: 1rem;
+  outline: none;
+  background: #fff;
+  color: #222; /* Ensure text is visible */
+}
+
+.askai-chatbox-send {
+  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: opacity 0.2s;
+}
+
+.askai-chatbox-send:hover {
+  opacity: 0.9;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px);}
+  to { opacity: 1; transform: translateY(0);}
+}

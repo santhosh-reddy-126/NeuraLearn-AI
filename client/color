@@ -1,0 +1,12 @@
+| Purpose             | Color Name        | Hex Code  | Description                                                          |
+| ------------------- | ----------------- | --------- | -------------------------------------------------------------------- |
+| **Primary**         | Brainwave Blue    | `#3F8EFC` | Represents intelligence, focus, and trust. Sets a tech-savvy tone.   |
+| **Secondary**       | Neuro Mint        | `#3EE4B2` | Fresh, vibrant, and calming. Evokes growth, wellness, and balance.   |
+| **Accent**          | Synapse Coral     | `#FF6B81` | Used for buttons, alerts. Adds emotional warmth and contrast.        |
+| **Background**      | Light Gray Matter | `#F7F9FB` | Clean, ultra-light background that enhances readability and visuals. |
+| **Card / Surface**  | Cortex Gray       | `#E2E8F0` | Smooth, soft gray for cards and inputs. Maintains visual hierarchy.  |
+| **Text (Dark)**     | Deep Charcoal     | `#1F2937` | High contrast and clarity for dark text.                             |
+| **Text (Light)**    | Slate Cloud       | `#6B7280` | For placeholders, subtext, muted labels.                             |
+| **Success**         | Focus Green       | `#38C172` | Positive feedback, progress, and achievements.                       |
+| **Warning / Alert** | Alert Orange      | `#F59E0B` | Call attention to issues, low scores, or missed topics.              |
+| **Error / Danger**  | Red Pulse         | `#EF4444` | Strong visual cue for incorrect answers or broken features.          |
