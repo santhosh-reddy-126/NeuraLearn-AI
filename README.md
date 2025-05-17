@@ -34,7 +34,7 @@
 
 - **Frontend:** React.js  
 - **Backend:** Node.js, Express.js  
-- **Database:** MongoDB  
+- **Database:** Supabase
 - **AI Integration:** OpenAI GPT API (for Ask AI feature)  
 - **Authentication:** JWT / bcrypt (as applicable)
 
