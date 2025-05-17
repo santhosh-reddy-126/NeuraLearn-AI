@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import router from './Routes/User.js'
+import routerc from './Routes/Curriculum.js'
 import jwt from 'jsonwebtoken'
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -29,7 +30,7 @@ export function verifyToken(req, res, next) {
   })
 }
 app.use('/api/user',router)
-
+app.use('/api/curriculum',routerc)
 app.get('/', (req, res) => {
   res.send('NeuraLearn AI server is running!')
 })

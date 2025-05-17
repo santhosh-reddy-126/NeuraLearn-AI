@@ -208,6 +208,73 @@
   font-size: 1.1rem;
 }
 
+.curriculums {
+  width: 100%;
+  max-width: 1100px;
+  margin: 2.5rem auto 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  padding: 0 1rem;
+  background: none;
+  box-shadow: none;
+}
+
+.day-card {
+  background: linear-gradient(100deg, #e3f0ff 60%, #e6fff7 100%);
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 18px 0 #3F8EFC18;
+  padding: 1.5rem 1.3rem 1.3rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-left: 6px solid #3F8EFC;
+  border-right: 6px solid #3EE4B2;
+  transition: box-shadow 0.18s, border 0.18s, transform 0.18s;
+  min-height: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.day-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 1.2rem;
+  pointer-events: none;
+  background: linear-gradient(120deg, #3F8EFC22 0%, #3EE4B222 100%);
+  opacity: 0.25;
+  z-index: 0;
+}
+
+.day-card h4 {
+  color: #3F8EFC;
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem 0;
+  letter-spacing: 0.01em;
+  z-index: 1;
+  position: relative;
+}
+
+.day-card:hover {
+  box-shadow: 0 8px 32px 0 #3F8EFC33;
+  border-left: 6px solid #3EE4B2;
+  border-right: 6px solid #3F8EFC;
+  transform: translateY(-2px) scale(1.025);
+}
+
+@media (max-width: 700px) {
+  .curriculums {
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
+    padding: 0 0.2rem;
+  }
+  .day-card {
+    padding: 1.1rem 0.7rem;
+  }
+}
+
 .askai-chatbox-close {
   background: none;
   border: none;
@@ -287,6 +354,7 @@
 .askai-chatbox-send:hover {
   opacity: 0.9;
 }
+
 
 /* Animation */
 @keyframes fadeInUp {

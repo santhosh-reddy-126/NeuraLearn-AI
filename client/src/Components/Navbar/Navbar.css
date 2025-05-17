@@ -56,3 +56,20 @@
 .navbar-logout:hover {
   opacity: 0.9;
 }
+
+.navbar-curriculum {
+  background: none;
+  border: none;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.navbar-curriculum-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 0;
+  vertical-align: middle;
+  display: block;
+}
