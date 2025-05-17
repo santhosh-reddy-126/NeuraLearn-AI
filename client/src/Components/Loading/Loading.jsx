@@ -8,7 +8,6 @@ const Loading = () => (
       <div className="loading-dot"></div>
       <div className="loading-dot"></div>
     </div>
-    <div className="loading-text">Loading...</div>
   </div>
 );
 

@@ -30,6 +30,8 @@ const Curriculum = () => {
         toast.success("Unable to get Curriculum!")
       } else {
         allcurr(resp.data.data);
+        
+
         console.log(resp.data.data);
       }
     } catch (e) {
@@ -54,13 +56,17 @@ const Curriculum = () => {
       }
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const email = user.email;
-
+      let count = 0;
+      for (let j = 1; j <= duration; j++) {
+            count += curriculum[`Day ${j}`]['Subtopics'].length;
+      }
       const resp = await axios.post(backend + "api/curriculum/addcurriculum", {
         goal: goal,
         duration: duration,
         curriculum: curriculum,
         startdate: startdate,
-        email: email
+        email: email,
+        count: count
       });
       if (resp.data.success) {
         toast.success("Curriculum Added!")
@@ -70,21 +76,21 @@ const Curriculum = () => {
     }
   };
   const deleteCurriculum = async (id) => {
-  try {
-    const resp = await axios.post(backend + "api/curriculum/deletecurriculum", {
-      id: id,
-    });
-    if (resp.data.success) {
-      toast.success("Curriculum deleted!");
-      getCurriculum(); 
-    } else {
-      toast.error("Failed to delete curriculum.");
+    try {
+      const resp = await axios.post(backend + "api/curriculum/deletecurriculum", {
+        id: id,
+      });
+      if (resp.data.success) {
+        toast.success("Curriculum deleted!");
+        getCurriculum();
+      } else {
+        toast.error("Failed to delete curriculum.");
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Error deleting curriculum.");
     }
-  } catch (e) {
-    console.log(e);
-    toast.error("Error deleting curriculum.");
-  }
-};
+  };
 
   const handleCurriculum = async (e) => {
     e.preventDefault();
@@ -192,7 +198,7 @@ const Curriculum = () => {
 
         </div>
         <div className="my-curriculums">
-          {curr.length>0 ? <h1>My Curriculums</h1>:""}
+          {curr.length > 0 ? <h1>My Curriculums</h1> : ""}
           {
             curr.map((item) => {
               const today = new Date();
@@ -204,15 +210,28 @@ const Curriculum = () => {
               if (today >= startDate && today <= endDate) status = "In Progress";
               else if (today > endDate) status = "Completed";
 
+              const progressPercent = status === "In Progress"
+                ? Math.min(100, Math.max(0, ((today - startDate) / (endDate - startDate)) * 100))
+                : 0;
+
               return (
-                <div className={`curr-item ${status.toLowerCase().replace(" ", "-")}`} key={item.id} onClick={()=>navigate(`/study-curriculum/${item.id}`)}>
+                <div
+                  className={`curr-item ${status.toLowerCase().replace(" ", "-")}`}
+                  key={item.id}
                   
-                  <h3>{item.duration} days of {item.topic}</h3>
+                  style={{
+                    background: status !== "Not Started"
+                      ? `linear-gradient(90deg, #3EE4B2 ${item.completion === null ? 0 : (item.completion.length / item.count) * 100}%, #fafdff ${item.completion === null ? 0 : (item.completion.length / item.count) * 100}%)`
+                      : undefined,
+                    transition: "background 0.4s"
+                  }}
+                >
+                  <h3 style={{cursor: "pointer"}} onClick={() => navigate(`/study-curriculum/${item.id}`)}>{item.duration} days of {item.topic}</h3>
                   <div className="btns">
-                        {status!="Not Started" ? <img src={status=="In Progress" ? prog:com} />:""}
-                        <img src={del} onClick={()=>deleteCurriculum(item.id)} />
+                    {status != "Not Started" ? <img src={status == "In Progress" ? prog : com} /> : ""}
+                    <img src={del} onClick={() => deleteCurriculum(item.id)} />
                   </div>
-                  
+
                 </div>
               );
             })

@@ -7,56 +7,109 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey)
 const routerc = Router()
 
-routerc.post("/addcurriculum",async (req,res)=>{
-     const {email,goal,duration,curriculum,startdate} = req.body;
+routerc.post("/addcurriculum", async (req, res) => {
+     const { email, goal, duration, curriculum, startdate,count } = req.body;
      const dateOnly = new Date(startdate);
      dateOnly.setHours(0, 0, 0, 0);
-     try{
-          const {data,error} = await supabase.from("curriculum").insert([{email:email,topic: goal,duration: duration,curriculum: curriculum,startdate: dateOnly}])
-          if(error){
-               res.json({success: false,message: "Unable to add Curriculum!"})
+     try {
+          const { data, error } = await supabase.from("curriculum").insert([{ email: email, topic: goal, duration: duration, curriculum: curriculum, startdate: dateOnly,count: count }])
+          if (error) {
+               res.json({ success: false, message: "Unable to add Curriculum!" })
           }
-          res.json({success: true})
-          
-     }catch(e){
+          res.json({ success: true })
+
+     } catch (e) {
           console.log(e)
-          res.json({success: false,message: "Unable to add Curriculum!"})
+          res.json({ success: false, message: "Unable to add Curriculum!" })
      }
-     
+
 })
 
 
-routerc.post("/getcurriculum",async (req,res)=>{
-     const {email} = req.body;
-     try{
-          const {data,error} = await supabase.from("curriculum").select("*").eq("email",email);
-          if(error){
-               return res.json({success: false,message: "Unable to get Curriculum data!"})
+routerc.post("/getcurriculum", async (req, res) => {
+     const { email } = req.body;
+     try {
+          const { data, error } = await supabase.from("curriculum").select("*").eq("email", email);
+          if (error) {
+               return res.json({ success: false, message: "Unable to get Curriculum data!" })
           }
-          res.json({success: true,data: data})
-          
-     }catch(e){
+          res.json({ success: true, data: data })
+
+     } catch (e) {
           console.log(e)
-          res.json({success: false,message: "Unable to get Curriculum data!"})
+          res.json({ success: false, message: "Unable to get Curriculum data!" })
      }
-     
+
+})
+
+routerc.post("/getcurriculumbyid", async (req, res) => {
+     const { id } = req.body;
+     try {
+          const { data, error } = await supabase.from("curriculum").select("*").eq("id", id);
+          if (error) {
+               return res.json({ success: false, message: "Unable to get Curriculum data!" })
+          }
+          res.json({ success: true, data: data })
+
+     } catch (e) {
+          console.log(e)
+          res.json({ success: false, message: "Unable to get Curriculum data!" })
+     }
+
 })
 
 
+routerc.post("/marktopiccompleted", async (req, res) => {
+     const { id, topic } = req.body;
+     try {
+          const { data, error: fetchError } = await supabase
+               .from('curriculum')
+               .select('completion')
+               .eq('id', id)
+               .single();
 
-routerc.post("/deletecurriculum",async (req,res)=>{
-     const {id} = req.body;
-     try{
-          const {data,error} = await supabase.from("curriculum").delete("*").eq("id",id);
-          if(error){
-               return res.json({success: false,message: "Unable to delete Curriculum!"})
+          if (fetchError) {
+               return res.json({ success: false, message: 'Failed to fetch existing completion array.' });
           }
-          res.json({success: true})
-          
-     }catch(e){
+
+          let completionArray = data.completion || [];
+
+          if (!completionArray.includes(topic)) {
+               completionArray.push(topic);
+          }
+
+          const { error: updateError } = await supabase
+               .from('curriculum')
+               .update({ completion: completionArray })
+               .eq('id', id);
+
+          if (updateError) {
+               return res.json({ success: false, message: 'Failed to update completion array.' });
+          }
+
+          res.json({ success: true });
+
+     } catch (e) {
           console.log(e)
-          res.json({success: false,message: "Unable to delete Curriculum!"})
+          res.json({ success: false, message: "Unable to mark Complete!" })
      }
-     
+
+})
+
+
+routerc.post("/deletecurriculum", async (req, res) => {
+     const { id } = req.body;
+     try {
+          const { data, error } = await supabase.from("curriculum").delete("*").eq("id", id);
+          if (error) {
+               return res.json({ success: false, message: "Unable to delete Curriculum!" })
+          }
+          res.json({ success: true })
+
+     } catch (e) {
+          console.log(e)
+          res.json({ success: false, message: "Unable to delete Curriculum!" })
+     }
+
 })
 export default routerc;

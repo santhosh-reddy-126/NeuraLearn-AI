@@ -146,67 +146,6 @@
   line-height: 1.6;
 }
 
-/* Floating Ask AI Button */
-.askai-fab {
-  position: fixed;
-  right: 2.5rem;
-  bottom: 2.5rem;
-  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
-  color: #fff;
-  font-weight: 700;
-  border: none;
-  border-radius: 1.5rem;
-  padding: 0.9rem 2rem;
-  font-size: 1.1rem;
-  box-shadow: 0 4px 24px 0 rgba(63,142,252,0.15);
-  cursor: pointer;
-  z-index: 1001;
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-
-.askai-fab:hover {
-  opacity: 0.92;
-  box-shadow: 0 8px 32px 0 rgba(63,142,252,0.18);
-}
-
-/* Chatbox Overlay */
-.askai-chatbox-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(30,40,60,0.18);
-  z-index: 1002;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-}
-
-/* Chatbox */
-.askai-chatbox {
-  background: #fff;
-  border-radius: 1.2rem 1.2rem 0 0;
-  box-shadow: 0 4px 32px 0 rgba(63,142,252,0.18);
-  width: 340px;
-  max-width: 95vw;
-  margin: 0 2.5rem 2.5rem 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  animation: fadeInUp 0.3s;
-}
-
-.askai-chatbox-header {
-  padding: 1rem 1.2rem;
-  border-bottom: 1px solid #e2e8f0;
-  font-weight: 700;
-  color: #3F8EFC;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1.1rem;
-}
 
 .curriculums {
   width: 100%;

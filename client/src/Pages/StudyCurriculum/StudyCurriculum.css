@@ -1,0 +1,188 @@
+.study-curriculum-container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 2rem 1rem;
+  background: #f8fafc;
+  border-radius: 1.2rem;
+  min-height: 70vh;
+}
+
+.day-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;   /* Align to left */
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  margin-left: 1rem;             /* Add a little left margin */
+}
+
+.triangle-btn{
+     background: none;
+}
+
+.day-label {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #3F8EFC;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.topic-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px #e2e8f0;
+  padding: 2rem 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #3F8EFC;
+  text-align: center;
+  transition: box-shadow 0.18s;
+}
+
+.topic-card:hover {
+  box-shadow: 0 6px 24px #3F8EFC22;
+}
+
+.topic-dropdown {
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.topic-content-area {
+  width: 100%;
+  min-height: 80px;
+  border-radius: 1.2rem;
+  border: 2px solid #3F8EFC;
+  padding: 2.2rem 2rem 2rem 2rem;
+  font-size: 1.1rem;
+  background: #fafdff;
+  color: #1a237e;
+  box-shadow: 0 8px 32px #3F8EFC22;
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: dropdownFadeIn 0.45s cubic-bezier(.4,1.6,.6,1) forwards;
+  opacity: 0;
+  transform: translateY(-20px) scale(0.98);
+  margin-bottom: 1.5rem;
+  border-left: 8px solid #3EE4B2;
+  position: relative;
+}
+
+@keyframes dropdownFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.topic-header {
+  border-bottom: 2px solid #e3eafc;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.topic-title {
+  font-size: 1.7rem;
+  color: #3F8EFC;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.topic-title-row {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+  gap: 0.5rem;
+  font-size: 1.08rem;
+  min-height: 32px;
+}
+
+.topic-complete-icon {
+  width: 22px;
+  height: 22px;
+  margin-left: 4px;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.topic-section {
+  margin-bottom: 1.6rem;
+  background: #f3faff;
+  border-radius: 0.7rem;
+  padding: 1.1rem 1.2rem 1rem 1.2rem;
+  box-shadow: 0 2px 8px #3F8EFC11;
+  border-left: 4px solid #3F8EFC22;
+  transition: box-shadow 0.18s;
+}
+
+.topic-section h4 {
+  color: #3EE4B2;
+  font-size: 1.13rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topic-section-content {
+  margin-bottom: 0.5rem;
+  color: #222;
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.topic-section-content,
+.topic-section ul,
+.topic-section ol,
+.topic-section li {
+  text-align: left;
+}
+
+.topic-section ul,
+.topic-section ol {
+  margin: 0 0 0.5rem 1.5rem;
+  padding: 0;
+}
+
+.topic-section li {
+  margin-bottom: 0.4rem;
+  font-size: 1.05rem;
+}
+
+.topic-section:last-child {
+  margin-bottom: 0;
+}
+
+.mark-complete-btn {
+  background: linear-gradient(90deg, #3EE4B2 60%, #3F8EFC 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1.7rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #3F8EFC22;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.mark-complete-btn:hover {
+  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
+  transform: translateY(-2px) scale(1.03);
+}
