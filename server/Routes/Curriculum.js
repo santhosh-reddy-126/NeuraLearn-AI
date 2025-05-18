@@ -8,11 +8,11 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 const routerc = Router()
 
 routerc.post("/addcurriculum", async (req, res) => {
-     const { email, goal, duration, curriculum, startdate,count } = req.body;
+     const { email, goal, duration, curriculum, startdate, count } = req.body;
      const dateOnly = new Date(startdate);
      dateOnly.setHours(0, 0, 0, 0);
      try {
-          const { data, error } = await supabase.from("curriculum").insert([{ email: email, topic: goal, duration: duration, curriculum: curriculum, startdate: dateOnly,count: count }])
+          const { data, error } = await supabase.from("curriculum").insert([{ email: email, topic: goal, duration: duration, curriculum: curriculum, startdate: dateOnly, count: count }])
           if (error) {
                res.json({ success: false, message: "Unable to add Curriculum!" })
           }
@@ -29,11 +29,30 @@ routerc.post("/addcurriculum", async (req, res) => {
 routerc.post("/getcurriculum", async (req, res) => {
      const { email } = req.body;
      try {
-          const { data, error } = await supabase.from("curriculum").select("*").eq("email", email);
+          let { data, error } = await supabase.from("curriculum").select("*").eq("email", email);
           if (error) {
                return res.json({ success: false, message: "Unable to get Curriculum data!" })
           }
-          res.json({ success: true, data: data })
+          let main_data = data;
+          ({ data, error } = await supabase.from("daily_progress").select("*"));
+          if (error) {
+               return res.json({ success: false, message: "Unable to get Curriculum data!" })
+          }
+          let prog_data = data;
+
+          ({ data, error } = await supabase
+               .from('daily_progress_summary')
+               .select('*'));
+
+          if (error) console.error(error);
+
+          let bar_data=data;
+          ({ data, error } = await supabase
+               .from('today_progress_summary')
+               .select('*'));
+
+          if (error) console.error(error);
+          res.json({ success: true, data: main_data, prog: prog_data,bar: bar_data,donut: data[0].total_completed_today })
 
      } catch (e) {
           console.log(e)
@@ -45,11 +64,17 @@ routerc.post("/getcurriculum", async (req, res) => {
 routerc.post("/getcurriculumbyid", async (req, res) => {
      const { id } = req.body;
      try {
-          const { data, error } = await supabase.from("curriculum").select("*").eq("id", id);
+          let { data, error } = await supabase.from("curriculum").select("*").eq("id", id);
+
           if (error) {
                return res.json({ success: false, message: "Unable to get Curriculum data!" })
           }
-          res.json({ success: true, data: data })
+          let main_data = data;
+          ({ data, error } = await supabase.from("daily_progress").select("*").eq("curr_id", id));
+          if (error) {
+               return res.json({ success: false, message: "Unable to get Curriculum data!" })
+          }
+          res.json({ success: true, data: main_data, prog: data })
 
      } catch (e) {
           console.log(e)
@@ -60,41 +85,51 @@ routerc.post("/getcurriculumbyid", async (req, res) => {
 
 
 routerc.post("/marktopiccompleted", async (req, res) => {
-     const { id, topic } = req.body;
+     const { user_id, curr_id, topic } = req.body;
+
      try {
-          const { data, error: fetchError } = await supabase
-               .from('curriculum')
-               .select('completion')
-               .eq('id', id)
-               .single();
+          const date = new Date();
+          date.setHours(0, 0, 0, 0);
+          const dateString = date.toLocaleDateString('en-CA');
 
-          if (fetchError) {
-               return res.json({ success: false, message: 'Failed to fetch existing completion array.' });
+          const { data, error: fetchError1 } = await supabase
+               .from('daily_progress')
+               .select('completed')
+               .eq('user_id', user_id)
+               .eq('curr_id', curr_id)
+               .eq('date', dateString);
+
+          if (fetchError1) {
+               console.error(fetchError1);
+               return res.json({ success: false, message: 'Error fetching completion data' });
           }
 
-          let completionArray = data.completion || [];
+          let completed = data[0]?.completed || [];
 
-          if (!completionArray.includes(topic)) {
-               completionArray.push(topic);
+          // If topic not already marked complete, add it
+          if (!completed.includes(topic)) {
+               completed.push(topic);
           }
 
-          const { error: updateError } = await supabase
-               .from('curriculum')
-               .update({ completion: completionArray })
-               .eq('id', id);
+          const query = data.length === 0
+               ? supabase.from('daily_progress').insert([{ user_id, curr_id, completed, date: dateString }])
+               : supabase.from('daily_progress').update({ completed }).eq('user_id', user_id).eq('curr_id', curr_id).eq('date', dateString);
 
-          if (updateError) {
-               return res.json({ success: false, message: 'Failed to update completion array.' });
+          const { error: fetchError2 } = await query;
+
+          if (fetchError2) {
+               console.error(fetchError2);
+               return res.json({ success: false, message: 'Error updating completion data' });
           }
 
-          res.json({ success: true });
+          return res.json({ success: true });
 
      } catch (e) {
-          console.log(e)
-          res.json({ success: false, message: "Unable to mark Complete!" })
+          console.error(e);
+          res.json({ success: false, message: 'Unable to mark complete!' });
      }
+});
 
-})
 
 
 routerc.post("/deletecurriculum", async (req, res) => {

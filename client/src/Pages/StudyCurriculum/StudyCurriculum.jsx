@@ -5,7 +5,7 @@ import { backend, python } from "../../../data.jsx";
 import left from "../../assets/left.png";
 import right from "../../assets/right.png";
 import tcomp from "../../assets/taskcomp.png";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Loading from '../../Components/Loading/Loading.jsx';
 import AskAIChat from "../../Components/AskAIChat/AskAIChat.jsx";
@@ -13,7 +13,9 @@ import { toast } from "react-toastify";
 
 const StudyCurriculum = () => {
   const [data, setData] = useState({});
+  const [prog, setProg] = useState({});
   const { id } = useParams();
+  const nav = useNavigate();
   const [day, setDay] = useState(1);
   const [openTopic, setOpenTopic] = useState(null);
   const [topicContents, setTopicContents] = useState({});
@@ -21,11 +23,17 @@ const StudyCurriculum = () => {
   // Mark topic as complete
   const markComplete = async (topic) => {
     try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const user_id = user ? user.id : 0;
+      const curr_id = data ? data.id : 0;
       const resp = await axios.post(backend + "api/curriculum/marktopiccompleted", {
-        topic,
-        id
+        user_id,
+        curr_id,
+        topic
       });
       if (resp.data.success) {
+        setOpenTopic(null);
+        getData();
         toast.success(`${topic} Marked as Completed`);
       } else {
         toast.error(resp.data.message);
@@ -41,6 +49,8 @@ const StudyCurriculum = () => {
       const resp = await axios.post(backend + "api/curriculum/getcurriculumbyid", { id });
       if (resp.data.success) {
         setData(resp.data.data[0]);
+        setProg(resp.data.prog);
+        console.log(resp.data.prog);
         const diff = Math.floor((new Date() - new Date(resp.data.data[0].startdate)) / (1000 * 60 * 60 * 24));
         if (diff >= 0) setDay(1 + diff);
       }
@@ -49,7 +59,16 @@ const StudyCurriculum = () => {
     }
   };
 
-  // Change day handler
+  const checkTaskCompleted = (topic) => {
+    for (let i = 0; i < prog.length; i++) {
+      if (prog[i].completed && prog[i].completed.includes(topic)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
   const changeDay = (direction) => {
     if (direction === "left" && day > 1) {
       setDay((prev) => prev - 1);
@@ -88,9 +107,6 @@ const StudyCurriculum = () => {
     }
   };
 
-  // Helper to check if topic is completed
-  const isTopicCompleted = (topic) =>
-    data.completion?.some((t) => t === topic);
 
   return (
     <div>
@@ -121,7 +137,7 @@ const StudyCurriculum = () => {
                   }}
                 >
                   <span>{topic}</span>
-                  {isTopicCompleted(topic) && (
+                  {checkTaskCompleted(topic) && (
                     <img
                       src={tcomp}
                       alt="Completed"
@@ -215,14 +231,16 @@ const StudyCurriculum = () => {
                             </div>
                           </section>
 
-                          {!isTopicCompleted(topic) && (
+                          {!checkTaskCompleted(topic) && (
                             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2rem" }}>
-                              <button
-                                className="mark-complete-btn"
-                                onClick={() => markComplete(topic)}
-                              >
-                                ✅ Mark as Complete
-                              </button>
+                              <label className="mark-complete-checkbox">
+                                <input
+                                  type="checkbox"
+                                  onChange={() => markComplete(topic)}
+                                />
+                                <span className="checkmark"></span>
+                                <span className="checkbox-label">Mark as Complete</span>
+                              </label>
                             </div>
                           )}
                         </div>
@@ -233,7 +251,18 @@ const StudyCurriculum = () => {
                   </div>
                 )}
               </div>
-            ))}
+            ))
+          }
+          {/* Take Test Button after all topics */}
+          <div className="take-test-btn-container">
+            <button
+              className="take-test-btn"
+              onClick={() => nav(`/test/${data.id}/${day}`)}
+            >
+              <span role="img" aria-label="test" style={{ marginRight: 8 }}>📝</span>
+              Take Test
+            </button>
+          </div>
         </div>
       </div>
       <AskAIChat />

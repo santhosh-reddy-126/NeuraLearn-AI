@@ -6,7 +6,7 @@ import Loading from "../../Components/Loading/Loading";
 import Navbar from "../../Components/Navbar/Navbar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import prog from "../../assets/progress.png"
+import progress from "../../assets/progress.png"
 import del from "../../assets/delete.png"
 import com from "../../assets/completed.png"
 
@@ -18,6 +18,7 @@ const Curriculum = () => {
   const [loadingCurriculum, setLoadingCurriculum] = useState(false);
   const [startdate, setStartDate] = useState("");
   const [curr, allcurr] = useState([]);
+  const [prog, setProg] = useState([]);
   const getCurriculum = async (e) => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -30,13 +31,31 @@ const Curriculum = () => {
         toast.success("Unable to get Curriculum!")
       } else {
         allcurr(resp.data.data);
-        
+        setProg(resp.data.prog);
 
         console.log(resp.data.data);
       }
     } catch (e) {
       console.log(e);
     }
+  }
+
+  const checkNoOfTaskCompleted = (id) => {
+    let count =0;
+    for (let i = 0; i < prog.length; i++) {
+      if (prog[i].curr_id === id) {
+        if (prog[i].completed === null) {
+          count=count+0;
+          continue;
+        }
+        
+        count=count+prog[i].completed.length;
+      }
+
+
+      
+    }
+    return count;
   }
   const addCurriculum = async (e) => {
     try {
@@ -58,7 +77,7 @@ const Curriculum = () => {
       const email = user.email;
       let count = 0;
       for (let j = 1; j <= duration; j++) {
-            count += curriculum[`Day ${j}`]['Subtopics'].length;
+        count += curriculum[`Day ${j}`]['Subtopics'].length;
       }
       const resp = await axios.post(backend + "api/curriculum/addcurriculum", {
         goal: goal,
@@ -218,20 +237,32 @@ const Curriculum = () => {
                 <div
                   className={`curr-item ${status.toLowerCase().replace(" ", "-")}`}
                   key={item.id}
-                  
                   style={{
                     background: status !== "Not Started"
-                      ? `linear-gradient(90deg, #3EE4B2 ${item.completion === null ? 0 : (item.completion.length / item.count) * 100}%, #fafdff ${item.completion === null ? 0 : (item.completion.length / item.count) * 100}%)`
+                      ? `linear-gradient(90deg, #3EE4B2 ${(checkNoOfTaskCompleted(item.id) / item.count) * 100}%, #fafdff ${(checkNoOfTaskCompleted(item.id) / item.count) * 100}%)`
                       : undefined,
                     transition: "background 0.4s"
                   }}
                 >
-                  <h3 style={{cursor: "pointer"}} onClick={() => navigate(`/study-curriculum/${item.id}`)}>{item.duration} days of {item.topic}</h3>
+                  <h3
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/study-curriculum/${item.id}`)}
+                  >
+                    {item.duration} days of {item.topic}
+                  </h3>
                   <div className="btns">
-                    {status != "Not Started" ? <img src={status == "In Progress" ? prog : com} /> : ""}
-                    <img src={del} onClick={() => deleteCurriculum(item.id)} />
+                    {status !== "Not Started" ? (
+                      <img src={status === "In Progress" ? progress : com} alt="status" />
+                    ) : ""}
+                    <img src={del} onClick={() => deleteCurriculum(item.id)} alt="delete" />
+                    <button
+                      className="take-test-btn"
+                      
+                      onClick={() => navigate(`/test/${item.id}/${0}`)}
+                    >
+                      📝 Take Test
+                    </button>
                   </div>
-
                 </div>
               );
             })

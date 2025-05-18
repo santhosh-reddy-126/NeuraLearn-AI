@@ -15,34 +15,36 @@ basic_query="if i ask any question provide explanation for whatever i ask in sho
 
 
 
-def generate_curriculum(goal, duration_days, api_key):
-    url = "https://openrouter.ai/api/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
 
-    prompt = f"Create a {duration_days}-day learning plan for {goal} in this JSON format: {{'Day 1': {{'Topic': '', 'Description': '', 'Subtopics': [{""}]}}}}. Keep explanations short. Do not include markdown or text outside JSON.days should be ordered correctly"
+def generate_quiz_by_topics(topics, questions_per_topic=2):
+    topic_list = ', '.join([f'"{topic}"' for topic in topics])
+    prompt = (
+        f"For each of the following topics: [{topic_list}], generate {questions_per_topic} multiple choice quiz questions per topic. "
+        "Each question must have:\n"
+        "- 4 options\n"
+        "- 1 correct answer\n"
+        "- A topic tag(specifying the question topic)\n"
+        "Respond strictly in this JSON format:\n"
+        "{'questions': [\n"
+        "  {'topic': 'Topic Name', 'question': '', 'options': ['','','',''], 'answer': ''},\n"
+        "  ...\n"
+        "]}\n"
+        "No extra text, no markdown. Only valid JSON output.dont include nextline symbols inside it.send a json parsed string"
+    )
 
-    data = {
-        "model": "mistralai/mistral-small-3.1-24b-instruct:free",
-        "messages": [
-            {"role": "system", "content": "You are an expert curriculum designer for self-paced learners."},
-            {"role": "user", "content": prompt}
-        ],
-        "max_tokens": 1000,
-        "temperature": 0.7
-    }
+    try:
+        response = Bard().get_answer(prompt).get("content")
 
-    response = requests.post(url, json=data, headers=headers)
-
-    if response.status_code == 200:
-        result = response.json()
-        curriculum_text = result['choices'][0]['message']['content']
-        return curriculum_text
-    else:
-        print("Error:", response.status_code, response.text)
+        if response:
+            temp=re.sub(r'^```json\s*|```$', '', response).strip()
+            data = json.loads(temp)
+            return data
+        else:
+            return None
+    except Exception as e:
+        print("Bard error:", e)
         return None
+    
 
 @app.route('/ask-ai', methods=['POST'])
 def ask_ai():
@@ -89,21 +91,56 @@ def gen_curr():
     data = request.get_json()
     goal = data.get('goal', '')
     duration = data.get('duration', '')
-    curriculum = generate_curriculum(goal, duration, Mistral_api_key)
-    if curriculum:
-        print(curriculum)
-        match= re.search(r"```json(.*?)```", curriculum, re.DOTALL)
-        if match:
-            json_str = match.group(1).strip()
-            curriculum = json.loads(json_str)
-            return jsonify({"success":True,"data": curriculum})
+
+    prompt = (
+        f"You are an expert curriculum designer. Create a {duration}-day learning plan for {goal} "
+        "in this JSON format only (no extra text): "
+        "{'Day 1': {'Topic': '', 'Description': '', 'Subtopics': ['']}, 'Day 2': ...}. "
+        "Use simple language, keep it short, structured, and well-formatted. "
+        "Each day must have equal topics."
+    )
+
+    try:
+        response = Bard().get_answer(prompt).get('content')
+
+        if response:
+            match = re.search(r"```json(.*?)```", response, re.DOTALL)
+            if match:
+                json_str = match.group(1).strip()
+            else:
+                json_str = response.strip()
+
+            try:
+                curriculum = json.loads(json_str)
+                return jsonify({"success": True, "data": curriculum})
+            except json.JSONDecodeError:
+                return jsonify({"success": False, "message": "Unable to parse JSON from Bard's response."})
         else:
-            return jsonify({"success":False,"message": "Sorry! Unable to Identify Content"})
-    else:
+            return jsonify({"success": False, "message": "Empty response from Bard."})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Bard error: {str(e)}"})
 
-        return jsonify({"success":False,"message": "Sorry! Unable to Generate Curriculum"})
+@app.route('/generate-quiz', methods=['POST'])
+def gen_quiz():
+    data = request.get_json()
+    total, topics = int(data.get('total', 0)), data.get('topics', [])
+    
+    if not topics or total not in [15, 60]:
+        return jsonify({"success": False, "message": "Invalid input"})
 
+    qpt = 5 if total == 15 else 2
+    chunks = [topics[i:i + 2] for i in range(0, len(topics), 2)] if qpt == 5 else [topics[i:i + 5] for i in range(0, len(topics), 5)]
+    questions = []
 
+    for chunk in chunks:
+        res = generate_quiz_by_topics(chunk, qpt)
+        
+        if res:
+            try:
+                questions += res.get("questions", [])
+            except json.JSONDecodeError:
+                continue
+    return jsonify({"success": True, "data": {"questions": questions[:total]}} if questions else {"success": False, "message": "Unable to generate questions."})
 
 @app.route('/')
 def home():
