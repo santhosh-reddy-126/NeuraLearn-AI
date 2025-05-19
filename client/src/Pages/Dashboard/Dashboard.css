@@ -334,3 +334,18 @@
     padding: 1.2rem 0.5rem;
   }
 }
+
+/* Classification Message */
+.classification-message {
+  background: linear-gradient(90deg, #e3f2fd 0%, #fce4ec 100%);
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px #3F8EFC22;
+  padding: 1.2rem 2rem;
+  margin: 1.5rem 0;
+  max-width: 480px;
+  text-align: center;
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 1.1rem;
+  letter-spacing: 0.2px;
+}

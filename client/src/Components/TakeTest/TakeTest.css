@@ -3,10 +3,12 @@
   border-radius: 1.5rem;
   box-shadow: 0 8px 32px #3F8EFC22;
   padding: 2.5rem 2rem;
-  max-width: 520px;
-  margin: 2.5rem auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 2.5rem 0;
   font-family: 'Segoe UI', sans-serif;
   border: 1.5px solid #e3eafc;
+  box-sizing: border-box;
 }
 
 .test-header {

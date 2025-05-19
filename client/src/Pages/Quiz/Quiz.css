@@ -1,0 +1,254 @@
+.quiz-container {
+  max-width: 1200px;
+  margin: 2.5rem auto;
+  background: #fafdff;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px #3F8EFC22;
+  padding: 2.5rem 2rem;
+}
+
+.quiz-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  margin-top: 1.5rem;
+  font-size: 1.08rem;
+}
+
+.quiz-table th, .quiz-table td {
+  padding: 1rem 1.2rem;
+  background: #fff;
+  border-bottom: 1.5px solid #e3eafc;
+  text-align: left;
+  font-size: 1.08rem;
+  color: #222; /* Improved contrast */
+}
+
+.quiz-table th {
+  background: #e9f1fb;
+  color: #1a237e;
+  font-weight: 700;
+  border-bottom: 2.5px solid #3F8EFC22;
+}
+
+.quiz-row {
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  border-radius: 0.7rem;
+  box-shadow: 0 1px 6px #3F8EFC08;
+  background: #fff;
+}
+
+.quiz-row:hover, .quiz-row:focus {
+  background: #e3f2fd;
+  box-shadow: 0 2px 12px #3F8EFC22;
+}
+
+.quiz-row.selected {
+  background: #e3eafc;
+  box-shadow: 0 4px 18px #3F8EFC22;
+}
+
+.quiz-expand-icon {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+  transition: transform 0.2s;
+  color: #1976d2;
+  vertical-align: middle;
+}
+
+.quiz-row.selected .quiz-expand-icon {
+  transform: rotate(90deg);
+}
+
+.quiz-analytics {
+  margin-top: 1.5rem;
+  background: #fafdff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px #3F8EFC11;
+}
+
+.quiz-analytics-dropdown {
+  animation: dropdownFade 0.3s;
+  border-radius: 1rem;
+  background: #fff;
+  display: flex;
+  gap: 2.5rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 4px 24px #3F8EFC22;
+  margin: 1.5rem 0;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.quiz-analytics-dropdown h4 {
+  color: #1976d2;
+  margin-bottom: 1.2rem;
+  font-size: 1.18rem;
+}
+
+.quiz-analytics-dropdown p, .quiz-analytics-dropdown div, .quiz-analytics-dropdown li {
+  color: #222;
+}
+
+.quiz-analytics-dropdown ul {
+  margin: 0.5rem 0 0 1.2rem;
+  padding: 0;
+}
+
+.quiz-analytics-dropdown li {
+  color: #d32f2f;
+  margin-bottom: 0.2rem;
+  font-size: 1rem;
+}
+
+.analytics-title {
+  color: #1976d2;
+  margin-bottom: 12px;
+  font-size: 1.18rem;
+  letter-spacing: 0.5px;
+}
+
+.analytics-details {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.analytics-label {
+  color: #3F8EFC;
+  font-weight: 600;
+}
+
+.analytics-value {
+  font-weight: 500;
+}
+
+.analytics-date {
+  color: #6d4c41;
+}
+
+.analytics-curriculum {
+  color: #8e24aa;
+}
+
+.analytics-total {
+  color: #0288d1;
+}
+
+.analytics-correct {
+  color: #388e3c;
+}
+
+.analytics-score {
+  color: #ffb300;
+  font-weight: 700;
+}
+
+.analytics-time {
+  color: #d84315;
+}
+
+.analytics-review {
+  color: #1976d2;
+}
+
+.analytics-breakdown-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.analytics-topic {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+.analytics-mistakes {
+  color: #ff7043;
+  font-weight: 500;
+}
+
+.weak-topics-card {
+  background: #fff3e0;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px #ff980022;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.2rem;
+  min-width: 220px;
+}
+
+.weak-topics-card h5 {
+  color: #e65100;
+  margin-bottom: 0.7rem;
+  font-size: 1.08rem;
+}
+
+.weak-topics-list {
+  list-style: decimal inside;
+  padding-left: 0.5rem;
+  margin: 0;
+}
+
+.weak-topics-list li {
+  color: #b71c1c;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.motivational-badge {
+  background: #e3fcec;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px #3EE4B222;
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badge-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-top: 8px;
+}
+
+.badge-desc {
+  font-size: 0.98rem;
+  margin-top: 4px;
+}
+
+.badge-success {
+  color: #388e3c;
+}
+
+.badge-mid {
+  color: #1976d2;
+}
+
+.badge-low {
+  color: #d32f2f;
+}
+
+@media (max-width: 900px) {
+  .quiz-analytics-dropdown {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.2rem 0.5rem;
+  }
+  .weak-topics-card {
+    margin-bottom: 1rem;
+  }
+  .quiz-container {
+    padding: 1rem 0.2rem;
+  }
+  .quiz-table th, .quiz-table td {
+    padding: 0.7rem 0.5rem;
+    font-size: 0.98rem;
+  }
+}

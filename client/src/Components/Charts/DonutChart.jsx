@@ -3,10 +3,10 @@ import { PieChart, Pie, Cell, Legend } from "recharts";
 
 const COLORS = ["#3EE4B2", "#3F8EFC"]; // Green for completed, vivid blue for remaining
 
-const DonutChart = ({ completed, total }) => {
+const DonutChart = ({ completed, total,title,ct,rt }) => {
   const data = [
-    { name: "Completed", value: completed },
-    { name: "Remaining", value: Math.max(0, total - completed) },
+    { name: ct, value: completed },
+    { name: rt, value: Math.max(0, total - completed) },
   ];
 
   return (
@@ -28,7 +28,7 @@ const DonutChart = ({ completed, total }) => {
           letterSpacing: "0.01em"
         }}
       >
-        Today's Progress
+        {title}
       </h2>
       <PieChart width={260} height={220}>
         <Pie
@@ -59,7 +59,7 @@ const DonutChart = ({ completed, total }) => {
           color: "#3EE4B2"
         }}
       >
-        {total > 0 ? ((completed / total) * 100).toFixed(1) : 0}% Completed
+        {total > 0 ? ((completed / total) * 100).toFixed(1) : 0}% {ct}
       </p>
     </div>
   );

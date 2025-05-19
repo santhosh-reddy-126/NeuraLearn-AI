@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Navbar.css'
 import curriculum from "../../assets/curriculum.png"
+import quiz from "../../assets/quiz.png"
 
 const Navbar = () => {
   const nav = useNavigate()
@@ -20,13 +21,17 @@ const Navbar = () => {
     nav('/curriculum')
   }
 
+  const handleQuiz = () => {
+    nav('/quiz')
+  }
+
   return (
     <nav className="navbar">
       <div className="navbar-logo" onClick={()=>nav("/dashboard")}>
         <span role="img" aria-label="logo" style={{ fontSize: 32, verticalAlign: 'middle' }}>🧠</span>
         <span className="navbar-name">NeuraLearn AI</span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div className="navbar-links">
         <button
           className="navbar-curriculum"
           onClick={handleCurriculum}
@@ -35,6 +40,19 @@ const Navbar = () => {
           <img
             src={curriculum}
             alt="Curriculum"
+            className="navbar-curriculum-icon"
+            width={60}
+            height={60}
+          />
+        </button>
+        <button
+          className="navbar-quiz"
+          onClick={handleQuiz}
+          title="Quiz"
+        >
+          <img
+            src={quiz}
+            alt="Quiz"
             className="navbar-curriculum-icon"
             width={60}
             height={60}

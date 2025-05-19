@@ -13,6 +13,9 @@ const TakeTest = () => {
      const [curr, setcurr] = useState([]);
      const [questions, setquestions] = useState([]);
      const [testDuration, setTestDuration] = useState(120);
+     const [reviewMode, setReviewMode] = useState(false);
+
+
      const getData = async () => {
           try {
                const resp = await axios.post(backend + "api/curriculum/getcurriculumbyid", {
@@ -104,6 +107,7 @@ const TakeTest = () => {
                     if (prev <= 1) {
                          clearInterval(timerRef.current);
                          setShowScore(true);
+                         onTestComplete();
                          return 0;
                     }
                     return prev - 1;
@@ -118,7 +122,10 @@ const TakeTest = () => {
 
      // Play audio on option click
      const handleOptionChange = (e) => {
-          setSelected({ ...selected, [current]: e.target.value });
+          const updatedQuestions = questions.map((q, idx) =>
+               idx === current ? { ...q, selected: e.target.value } : q
+          );
+          setquestions(updatedQuestions);
           clickAudio.current && clickAudio.current.play();
      };
 
@@ -128,6 +135,7 @@ const TakeTest = () => {
           } else {
                setShowScore(true);
                clearInterval(timerRef.current);
+               onTestComplete();
           }
      };
 
@@ -143,9 +151,29 @@ const TakeTest = () => {
      };
 
      const score = questions.reduce(
-          (acc, q, idx) => acc + (selected[idx] === q.answer ? 1 : 0),
+          (acc, q) => acc + (q.selected === q.answer ? 1 : 0),
           0
      );
+
+     const onTestComplete = async() => {
+          try {
+               let temp = localStorage.getItem("user");
+               temp = JSON.parse(temp);
+               const timeSpent = testDuration - timeLeft; // Calculate time spent in seconds
+               const resp = await axios.post(backend + "api/test/updateresult", {
+                    data: questions,
+                    id: id,
+                    user_id: temp.id,
+                    time_spent: timeSpent // Send time spent
+               });
+               if (!resp.data.success) {
+                    toast.error("Unable to track Quiz");
+               }
+          } catch (e) {
+               console.log(e);
+          }
+          console.log("Test completed! Score:", score);
+     };
 
      if (!questions || questions.length === 0) {
           return (
@@ -200,7 +228,7 @@ const TakeTest = () => {
                                                        type="radio"
                                                        name={`q${current}`}
                                                        value={opt}
-                                                       checked={selected[current] === opt}
+                                                       checked={questions[current].selected === opt}
                                                        onChange={handleOptionChange}
                                                   />
                                                   {opt}
@@ -219,28 +247,62 @@ const TakeTest = () => {
                                    <button
                                         onClick={handleNext}
                                         className="test-btn"
-                                        disabled={selected[current] == null}
+                                        disabled={!questions[current].selected}
                                    >
                                         {current === questions.length - 1 ? "Finish" : "Next"}
                                    </button>
                               </div>
                          </>
                     ) : (
-                         <div className="test-score">
-                              <h2>
-                                   Your Score: <span style={{ color: "#3EE4B2" }}>{score}</span> / {questions.length}
-                              </h2>
-                              <p style={{ fontSize: "1.1rem", color: "#3F8EFC", margin: "1rem 0" }}>
-                                   {score === questions.length
-                                        ? "Excellent! 🎉"
-                                        : score > 0
-                                             ? "Good try! Review and try again."
-                                             : "Don't worry, keep practicing!"}
-                              </p>
-                              <button className="test-btn" onClick={handleRetake}>
-                                   Retake Test
-                              </button>
-                         </div>
+                         <>
+                              {!reviewMode ? (
+                                   <div className="test-score">
+                                        <h2>
+                                             Your Score: <span style={{ color: "#3EE4B2" }}>{score}</span> / {questions.length}
+                                        </h2>
+                                        <p style={{ fontSize: "1.1rem", color: "#3F8EFC", margin: "1rem 0" }}>
+                                             {score === questions.length
+                                                  ? "Excellent! 🎉"
+                                                  : score > 0
+                                                       ? "Good try! Review and try again."
+                                                       : "Don't worry, keep practicing!"}
+                                        </p>
+                                        <button className="test-btn" onClick={handleRetake}>
+                                             Retake Test
+                                        </button>
+                                        <button className="test-btn" style={{ marginLeft: 12 }} onClick={() => setReviewMode(true)}>
+                                             Review Answers
+                                        </button>
+                                   </div>
+                              ) : (
+                                   <div className="test-review">
+                                        <h2>Exam Review</h2>
+                                        <ol>
+                                             {questions.map((q, idx) => (
+                                                  <li key={idx} style={{ marginBottom: "1.2rem" }}>
+                                                       <div style={{ fontWeight: 600 }}>{q.question}</div>
+                                                       <div>
+                                                            <span style={{ color: "#3F8EFC" }}>Your answer:</span>{" "}
+                                                            <span style={{
+                                                                 color: q.selected === q.answer ? "#3EE4B2" : "#ff3b3b",
+                                                                 fontWeight: 600
+                                                            }}>
+                                                                 {q.selected || <em>Not answered</em>}
+                                                            </span>
+                                                       </div>
+                                                       <div>
+                                                            <span style={{ color: "#3F8EFC" }}>Correct answer:</span>{" "}
+                                                            <span style={{ color: "#3EE4B2", fontWeight: 600 }}>{q.answer}</span>
+                                                       </div>
+                                                  </li>
+                                             ))}
+                                        </ol>
+                                        <button className="test-btn" onClick={() => setReviewMode(false)}>
+                                             Back to Result
+                                        </button>
+                                   </div>
+                              )}
+                         </>
                     )}
                </div>
           </div>

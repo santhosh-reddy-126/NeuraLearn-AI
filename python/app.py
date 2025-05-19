@@ -1,9 +1,21 @@
 from flask import Flask, jsonify, request
+from supabase import create_client, Client
+import joblib
+import numpy as np
 from flask_cors import CORS
 from bardapi import Bard
 import os
 import re,json,requests
 import time
+
+
+
+
+model = joblib.load("model.pkl")
+SUPABASE_URL = "https://yaaanfgcidbukyosgvys.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhYWFuZmdjaWRidWt5b3NndnlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyOTI3NDcsImV4cCI6MjA2Mjg2ODc0N30.NB3187950H3OSmeIArBg4qLLHk8t1k-8CSzd5LxOXOY"
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 Mistral_api_key = "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"
@@ -45,6 +57,23 @@ def generate_quiz_by_topics(topics, questions_per_topic=2):
         print("Bard error:", e)
         return None
     
+def get_cluster_message(cluster):
+    if cluster == 0:
+        return "You have a moderate score and spend less time on quizzes. Try dedicating a bit more time to improve your understanding and boost your scores!"
+    elif cluster == 1:
+        return "You spend quite a lot of time on quizzes but your scores are low. Focus on identifying difficult topics and practicing smarter, not just longer."
+    elif cluster == 2:
+        return "Great job! You spend a good amount of time studying and achieve high scores. Keep up the consistent effort!"
+    elif cluster == 3:
+        return "Excellent work! You’re scoring high while spending less time, indicating strong understanding and efficiency."
+    elif cluster == 4:
+        return "You spend a good amount of time on quizzes with moderate scores. Try focusing on weak areas to make your study time even more effective."
+    elif cluster == 5:
+        return "Your scores are low and time spent is limited. Consider increasing your study time and reviewing foundational concepts for better results."
+    else:
+        return "Invalid cluster value."
+
+    
 
 @app.route('/ask-ai', methods=['POST'])
 def ask_ai():
@@ -56,6 +85,23 @@ def ask_ai():
     ans = re.sub(r'\s{2,}', ' ', ans)   
     ans = ans.strip()
     return jsonify({"success":True,"answer": ans})
+
+@app.route('/classify',methods=['POST'])
+def classify():
+    data = request.get_json()
+    id = data.get('user_id', '')
+    response = supabase.from_("user_avg_score_time").select("*").eq("user_id", id).execute()
+    if(len(response.data)==0):
+        return jsonify({"success":True,"data": "To view your performance insights, please take a few quizzes first. This helps us analyze your learning patterns and provide personalized feedback based on your scores and time spent."})
+    
+    avg_score = response.data[0]["avg_score"]
+    avg_time = response.data[0]["avg_time_spent"]
+
+    arr = np.array([[avg_score, avg_time]])
+    cluster = model.predict(arr)
+    
+
+    return jsonify({"success":True,"data": get_cluster_message(cluster)})
 
 
 @app.route('/explain-topic', methods=['POST'])

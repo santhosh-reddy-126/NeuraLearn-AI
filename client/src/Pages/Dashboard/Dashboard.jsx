@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import "./Dashboard.css";
-import { backend } from "../../../data";
+import { backend, python } from "../../../data";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BarChartComponent from "../../Components/Charts/BarChartComponent";
 import AskAIChat from "../../Components/AskAIChat/AskAIChat";
 import DonutChart from "../../Components/Charts/DonutChart";
+import Loading from "../../Components/Loading/Loading"; // <-- import your loading component
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user')) || {};
@@ -20,6 +21,29 @@ const Dashboard = () => {
     completed: 0,
     total: 0
   });
+  const [classificationMsg, setClassificationMsg] = useState("");
+  const [loading, setLoading] = useState(true); // <-- loading state
+
+  const getUserId = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user.id;
+  };
+
+  const classifyUser = async () => {
+    try {
+      const resp = await axios.post(python + "classify", {
+        user_id: getUserId()
+      });
+      if (!resp.data.success) {
+        toast.error("Unable to classify");
+      } else {
+        setClassificationMsg(resp.data.data || "No classification available.");
+      }
+    } catch (e) {
+      console.error("Classification error:", e);
+      setClassificationMsg("Unable to fetch classification.");
+    }
+  };
 
   // Calculate donut values for each curriculum item
   const calculateDonut = (item) => {
@@ -58,14 +82,36 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    getCurriculum();
+    const fetchAll = async () => {
+      setLoading(true);
+      await Promise.all([getCurriculum(), classifyUser()]);
+      setLoading(false);
+    };
+    fetchAll();
+    // eslint-disable-next-line
   }, []);
+
+  if (loading) {
+    return (
+      <div>
+        <Navbar />
+        <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
+          <Loading />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
       <Navbar />
       <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
         <h1 className="dashboard-title">Welcome, {name}!</h1>
+        {classificationMsg && (
+          <div className="classification-message">
+            {classificationMsg}
+          </div>
+        )}
         <div className="curriculums">
           {curr
             .filter(item => {
@@ -84,10 +130,10 @@ const Dashboard = () => {
         </div>
         <div className="dashboard-charts-row">
           <div className="dashboard-chart-card">
-            <DonutChart completed={donut.completed} total={donut.total} />
+            <DonutChart completed={donut.completed} total={donut.total} title={"Total Progress"} ct={"Completed"} rt={"Remaining"} />
           </div>
           <div className="dashboard-chart-card">
-            <BarChartComponent data={bar} />
+            <BarChartComponent data={bar} title={"Last 7 Days Progress"} col={"date"} row={"total_completed_count"} rowname={"Completed"} />
           </div>
         </div>
       </div>

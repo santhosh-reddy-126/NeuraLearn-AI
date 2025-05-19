@@ -19,7 +19,10 @@ const Curriculum = () => {
   const [startdate, setStartDate] = useState("");
   const [curr, allcurr] = useState([]);
   const [prog, setProg] = useState([]);
+  const [loadingCurriculums, setLoadingCurriculums] = useState(true);
+
   const getCurriculum = async (e) => {
+    setLoadingCurriculums(true);
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const email = user.email;
@@ -38,22 +41,20 @@ const Curriculum = () => {
     } catch (e) {
       console.log(e);
     }
+    setLoadingCurriculums(false);
   }
 
   const checkNoOfTaskCompleted = (id) => {
-    let count =0;
+    let count = 0;
     for (let i = 0; i < prog.length; i++) {
       if (prog[i].curr_id === id) {
         if (prog[i].completed === null) {
-          count=count+0;
+          count = count + 0;
           continue;
         }
-        
-        count=count+prog[i].completed.length;
+
+        count = count + prog[i].completed.length;
       }
-
-
-      
     }
     return count;
   }
@@ -213,63 +214,65 @@ const Curriculum = () => {
               </div>
             </div>
           )}
-
-
         </div>
         <div className="my-curriculums">
-          {curr.length > 0 ? <h1>My Curriculums</h1> : ""}
-          {
-            curr.map((item) => {
-              const today = new Date();
-              const startDate = new Date(item.startdate);
-              const endDate = new Date(startDate);
-              endDate.setDate(startDate.getDate() + parseInt(item.duration));
+          {loadingCurriculums ? (
+            <Loading />
+          ) : (
+            <>
+              {curr.length > 0 ? <h1>My Curriculums</h1> : ""}
+              {
+                curr.map((item) => {
+                  const today = new Date();
+                  const startDate = new Date(item.startdate);
+                  const endDate = new Date(startDate);
+                  endDate.setDate(startDate.getDate() + parseInt(item.duration));
 
-              let status = "Not Started";
-              if (today >= startDate && today <= endDate) status = "In Progress";
-              else if (today > endDate) status = "Completed";
+                  let status = "Not Started";
+                  if (today >= startDate && today <= endDate) status = "In Progress";
+                  else if (today > endDate) status = "Completed";
 
-              const progressPercent = status === "In Progress"
-                ? Math.min(100, Math.max(0, ((today - startDate) / (endDate - startDate)) * 100))
-                : 0;
+                  const progressPercent = status === "In Progress"
+                    ? Math.min(100, Math.max(0, ((today - startDate) / (endDate - startDate)) * 100))
+                    : 0;
 
-              return (
-                <div
-                  className={`curr-item ${status.toLowerCase().replace(" ", "-")}`}
-                  key={item.id}
-                  style={{
-                    background: status !== "Not Started"
-                      ? `linear-gradient(90deg, #3EE4B2 ${(checkNoOfTaskCompleted(item.id) / item.count) * 100}%, #fafdff ${(checkNoOfTaskCompleted(item.id) / item.count) * 100}%)`
-                      : undefined,
-                    transition: "background 0.4s"
-                  }}
-                >
-                  <h3
-                    style={{ cursor: "pointer" }}
-                    onClick={() => navigate(`/study-curriculum/${item.id}`)}
-                  >
-                    {item.duration} days of {item.topic}
-                  </h3>
-                  <div className="btns">
-                    {status !== "Not Started" ? (
-                      <img src={status === "In Progress" ? progress : com} alt="status" />
-                    ) : ""}
-                    <img src={del} onClick={() => deleteCurriculum(item.id)} alt="delete" />
-                    <button
-                      className="take-test-btn"
-                      
-                      onClick={() => navigate(`/test/${item.id}/${0}`)}
+                  return (
+                    <div
+                      className={`curr-item ${status.toLowerCase().replace(" ", "-")}`}
+                      key={item.id}
+                      style={{
+                        background: status !== "Not Started"
+                          ? `linear-gradient(90deg, #3EE4B2 ${(checkNoOfTaskCompleted(item.id) / item.count) * 100}%, #fafdff ${(checkNoOfTaskCompleted(item.id) / item.count) * 100}%)`
+                          : undefined,
+                        transition: "background 0.4s"
+                      }}
                     >
-                      📝 Take Test
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          }
+                      <h3
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate(`/study-curriculum/${item.id}`)}
+                      >
+                        {item.duration} days of {item.topic}
+                      </h3>
+                      <div className="btns">
+                        {status !== "Not Started" ? (
+                          <img src={status === "In Progress" ? progress : com} alt="status" />
+                        ) : ""}
+                        <img src={del} onClick={() => deleteCurriculum(item.id)} alt="delete" />
+                        <button
+                          className="take-test-btn"
+                          onClick={() => navigate(`/test/${item.id}/${0}`)}
+                        >
+                          📝 Take Test
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              }
+            </>
+          )}
         </div>
       </div>
-
     </div>
   );
 };

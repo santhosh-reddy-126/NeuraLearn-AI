@@ -1,7 +1,7 @@
 // BarChartComponent.js
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
 
-const BarChartComponent = ({ data }) => {
+const BarChartComponent = ({ data,title,col,row,rowname }) => {
   return (
     <div
       style={{
@@ -26,13 +26,13 @@ const BarChartComponent = ({ data }) => {
           letterSpacing: "0.01em"
         }}
       >
-        Last 7 Days Progress
+        {title}
       </h2>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e3eafc" />
           <XAxis 
-            dataKey="date" 
+            dataKey={col}
             tick={{ fill: "#1a237e", fontWeight: 600, fontSize: 13 }} 
             axisLine={{ stroke: "#3F8EFC" }} 
           />
@@ -55,8 +55,8 @@ const BarChartComponent = ({ data }) => {
             }}
           />
           <Bar 
-            dataKey="total_completed_count" 
-            name="Completed" 
+            dataKey={row}
+            name={rowname} 
             fill="#3EE4B2" 
             radius={[8, 8, 0, 0]} 
             barSize={28}
