@@ -20,9 +20,17 @@ const Curriculum = () => {
   const [curr, allcurr] = useState([]);
   const [prog, setProg] = useState([]);
   const [loadingCurriculums, setLoadingCurriculums] = useState(true);
+  const [dashboardData, setDashboardData] = useState({});
+  const [expanded, setExpanded] = useState({});
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
+
+  const toggleExpand = (id) => {
+    setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const getCurriculum = async (e) => {
     setLoadingCurriculums(true);
+    setLoadingDashboard(true); // Start dashboard loading
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const email = user.email;
@@ -35,13 +43,25 @@ const Curriculum = () => {
       } else {
         allcurr(resp.data.data);
         setProg(resp.data.prog);
+        setLoadingCurriculums(false); // Curriculum loaded
 
-        console.log(resp.data.data);
+        // Now fetch dashboard data
+        const temp = resp.data.data;
+        const dashboardResults = {};
+        await Promise.all(
+          temp.map(async (item) => {
+            const data = await fetchDashboardData(item.id);
+            dashboardResults[item.id] = data;
+          })
+        );
+        setDashboardData(dashboardResults);
+        setLoadingDashboard(false); // Dashboard loaded
       }
     } catch (e) {
       console.log(e);
+      setLoadingCurriculums(false);
+      setLoadingDashboard(false);
     }
-    setLoadingCurriculums(false);
   }
 
   const checkNoOfTaskCompleted = (id) => {
@@ -132,6 +152,29 @@ const Curriculum = () => {
       toast.error("Error fetching curriculum.");
     }
     setLoadingCurriculum(false);
+  };
+
+  const fetchDashboardData = async (curriculumId) => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const user_id = user.id;
+    const user_email = user.email;
+
+    try {
+      const resp = await axios.post(python + "user-dashboard-data", {
+        user_id,
+        user_email,
+        curr_id: curriculumId
+      });
+      if (resp.data.success) {
+        return resp.data.data; // contains streak, todays_topics, todays_progress, last_quizzes
+      } else {
+        toast.error("Failed to fetch dashboard data");
+        return null;
+      }
+    } catch (e) {
+      toast.error("Error fetching dashboard data");
+      return null;
+    }
   };
 
   useEffect(() => {
@@ -241,30 +284,80 @@ const Curriculum = () => {
                       className={`curr-item ${status.toLowerCase().replace(" ", "-")}`}
                       key={item.id}
                       style={{
-                        background: status !== "Not Started"
-                          ? `linear-gradient(90deg, #3EE4B2 ${(checkNoOfTaskCompleted(item.id) / item.count) * 100}%, #fafdff ${(checkNoOfTaskCompleted(item.id) / item.count) * 100}%)`
-                          : undefined,
-                        transition: "background 0.4s"
+                        background: "#fff",
+                        borderRadius: "1.2rem",
+                        boxShadow: "0 2px 16px #3F8EFC11",
+                        margin: "1.5rem 0",
+                        padding: "1.5rem 2rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.7rem",
+                        position: "relative"
                       }}
                     >
-                      <h3
-                        style={{ cursor: "pointer" }}
-                        onClick={() => navigate(`/study-curriculum/${item.id}`)}
-                      >
-                        {item.duration} days of {item.topic}
-                      </h3>
-                      <div className="btns">
-                        {status !== "Not Started" ? (
-                          <img src={status === "In Progress" ? progress : com} alt="status" />
-                        ) : ""}
-                        <img src={del} onClick={() => deleteCurriculum(item.id)} alt="delete" />
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                          <h3
+                            style={{
+                              cursor: "pointer",
+                              margin: 0,
+                              fontWeight: 700,
+                              fontSize: "1.4rem",
+                              color: "#11443c"
+                            }}
+                            onClick={() => navigate(`/study-curriculum/${item.id}`)}
+                          >
+                            {item.duration} days of {item.topic}
+                          </h3>
+                          {typeof item.streak === "number" && item.streak > 0 && (
+                            <div className="curriculum-streak">
+                              <span role="img" aria-label="fire" style={{ fontSize: 22, verticalAlign: "middle" }}>🔥</span>
+                              <span style={{ marginLeft: 6, fontWeight: 600, color: "#e65100" }}>
+                                Streak: {item.streak} day{item.streak > 1 ? "s" : ""}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="btns">
+                          {status !== "Not Started" ? (
+                            <img src={status === "In Progress" ? progress : com} alt="status" />
+                          ) : ""}
+                          <img src={del} onClick={() => deleteCurriculum(item.id)} alt="delete" />
+                          <button
+                            className="take-test-btn"
+                            onClick={() => navigate(`/test/${item.id}/${0}`)}
+                          >
+                            📝 Take Test
+                          </button>
+                        </div>
+                      </div>
+                      {/* Downward arrow button */}
+                      <div style={{ display: "flex", justifyContent: "center" }}>
                         <button
-                          className="take-test-btn"
-                          onClick={() => navigate(`/test/${item.id}/${0}`)}
+                          className="expand-dashboard-btn"
+                          onClick={() => toggleExpand(item.id)}
+                          aria-label={expanded[item.id] ? "Hide details" : "Show details"}
                         >
-                          📝 Take Test
+                          {expanded[item.id] ? "▲" : "▼"}
                         </button>
                       </div>
+                      {/* Dashboard Data */}
+                      {expanded[item.id] && (
+                        loadingDashboard ? (
+                          <div style={{ textAlign: "center", padding: "1rem" }}>
+                            <Loading /> {/* or any spinner */}
+                          </div>
+                        ) : dashboardData[item.id] && (
+                          <div className="dashboard-details-card">
+                            <div style={{ fontWeight: 700, color: "#1976d2", marginBottom: "0.7rem" }}>Motivation</div>
+                            <div style={{ marginBottom: "1rem" }}>{dashboardData[item.id].motivation}</div>
+                            <div style={{ fontWeight: 700, color: "#1976d2", marginBottom: "0.7rem" }}>Tip</div>
+                            <div style={{ marginBottom: "1rem" }}>{dashboardData[item.id].tip}</div>
+                            <div style={{ fontWeight: 700, color: "#1976d2", marginBottom: "0.7rem" }}>Insight</div>
+                            <div>{dashboardData[item.id].insight}</div>
+                          </div>
+                        )
+                      )}
                     </div>
                   );
                 })

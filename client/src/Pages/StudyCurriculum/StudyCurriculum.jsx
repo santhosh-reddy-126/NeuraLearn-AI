@@ -26,8 +26,10 @@ const StudyCurriculum = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const user_id = user ? user.id : 0;
       const curr_id = data ? data.id : 0;
+      const user_email = user ? user.email: "none@gmail.com"
       const resp = await axios.post(backend + "api/curriculum/marktopiccompleted", {
         user_id,
+        user_email,
         curr_id,
         topic
       });
@@ -53,6 +55,7 @@ const StudyCurriculum = () => {
         console.log(resp.data.prog);
         const diff = Math.floor((new Date() - new Date(resp.data.data[0].startdate)) / (1000 * 60 * 60 * 24));
         if (diff >= 0) setDay(1 + diff);
+        console.log(new Date());
       }
     } catch (e) {
       console.log(e);

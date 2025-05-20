@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 100vh;
+  background: #fafdff;
   margin-top: 3rem;
   width: 100%;
 }
@@ -214,8 +216,11 @@
 }
 
 .my-curriculums {
-  color: #3F8EFC;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #3F8EFC;
   text-align: center;
   padding: 2rem 1rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -227,32 +232,83 @@
 }
 
 .curr-item {
-  background-color: #3EE4B2;
-  width: 60%;
-  margin: 1rem auto;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 650px;
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px #3F8EFC11;
+  margin: 1.5rem 0;
+  padding: 1.5rem 2rem;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  transition: transform 0.2s ease;
+  flex-direction: column;
+  gap: 0.7rem;
+  position: relative;
+  transition: box-shadow 0.2s, background 0.2s;
 }
 
 .curr-item:hover {
   transform: translateY(-5px);
 }
 
-.curr-item > btns{
+.curr-item-content {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.curr-item-main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .curr-item h3 {
-  font-size: 1.5rem;
-  margin: 0.5rem 0;
-  color: #064E3B;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #11443c;
+  margin: 0;
+}
+
+.curriculum-streak {
+  display: flex;
+  align-items: center;
+  background: #fff8e1;
+  border-radius: 0.7rem;
+  padding: 0.3rem 0.9rem;
+  font-size: 1.08rem;
+  box-shadow: 0 1px 6px #ff980022;
+}
+
+.btns {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.take-test-btn {
+  background: linear-gradient(90deg, #3EE4B2 0%, #3F8EFC 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.take-test-btn:hover {
+  background: linear-gradient(90deg, #3F8EFC 0%, #3EE4B2 100%);
+}
+
+.curr-item > btns {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .curr-item h4 {
@@ -261,6 +317,38 @@
   margin: 0;
 }
 
+.dashboard-details-card {
+  background: #fafdff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px #3F8EFC11;
+  margin: 1rem 0 0.5rem 0;
+  padding: 1.5rem 2rem;
+  font-size: 1.08rem;
+  color: #11443c;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.expand-dashboard-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2.2rem;
+  color: #3F8EFC;
+  transition: transform 0.2s, color 0.2s;
+  margin-top: 0.2rem;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expand-dashboard-btn:hover {
+  color: #3EE4B2;
+  transform: scale(1.25) rotate(180deg);
+}
 
 @media (max-width: 1000px) {
   .curriculum-section {

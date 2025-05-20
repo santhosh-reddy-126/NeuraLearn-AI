@@ -104,6 +104,63 @@ def classify():
     return jsonify({"success":True,"data": get_cluster_message(cluster)})
 
 
+
+from datetime import datetime
+
+@app.route('/user-dashboard-data', methods=['POST'])
+def user_dashboard_data():
+    data = request.get_json()
+    user_email = data.get('user_email')  
+    user_id = data.get('user_id')
+    curr_id = data.get('curr_id')
+    streak_resp = supabase.from_("curriculum").select("streak").eq("id", curr_id).eq("email", user_email).single().execute()
+    streak = streak_resp.data["streak"] if streak_resp.data else 0
+
+    today = datetime.now().strftime('%Y-%m-%d')
+    progress_resp = supabase.from_("daily_progress").select("*").eq("user_id", user_id).eq("curr_id", curr_id).eq("date", today).single().execute()
+    todays_progress = progress_resp.data if progress_resp.data else {}
+    todays_topics = todays_progress.get("completed", []) if todays_progress else []
+
+    quiz_resp = supabase.from_("quiz").select("*").eq("user_id", user_id).eq("curr_id", curr_id).order("created_at", desc=True).limit(3).execute()
+    last_quizzes = quiz_resp.data if quiz_resp.data else []
+    prompt = f"""
+    You are a supportive and intelligent learning coach. A user is using a daily part-time learning app. Based on their progress and recent activity, generate:
+
+    1. A short motivational line.
+    2. A helpful tip based on today's completed topics.
+    3. An insight based on their recent quiz performance.
+
+    User data:
+    - Streak: {streak} days
+    - Topics completed today: {todays_topics}
+    - Quiz history (latest 3):
+    """ + "\n".join(
+        [f"  - Score: {q.get('score', '?')*100}% | Time taken: {q.get('timeSpent', '?')} sec" for q in last_quizzes]
+    ) + """
+
+    Respond as an array string:
+
+    [Motivation,Tip,Insight]
+    """ 
+
+    ans = Bard().get_answer(prompt).get('content')
+    clean_ans = ans.strip('`json').strip('`').strip()
+
+    parsed_response = json.loads(clean_ans)
+    motivation = parsed_response[0]
+    tip = parsed_response[1]
+    insight = parsed_response[2]
+
+    data = {
+        "motivation": motivation,
+        "tip": tip,
+        "insight": insight
+    }
+
+    return jsonify({"success":True,"data": data})
+
+
+
 @app.route('/explain-topic', methods=['POST'])
 def explain_topic():
     data = request.get_json()
