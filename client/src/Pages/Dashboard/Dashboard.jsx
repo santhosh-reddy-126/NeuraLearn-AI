@@ -4,7 +4,7 @@ import "./Dashboard.css";
 import { backend, python } from "../../../data";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { resolvePath, useNavigate } from "react-router-dom";
 import BarChartComponent from "../../Components/Charts/BarChartComponent";
 import AskAIChat from "../../Components/AskAIChat/AskAIChat";
 import DonutChart from "../../Components/Charts/DonutChart";
@@ -66,8 +66,10 @@ const Dashboard = () => {
         toast.success("Unable to get Curriculum!")
       } else {
         allcurr(resp.data.data);
-        setProg(resp.data.prog);
         setbar(resp.data.bar);
+        console.log(resp.data.bar);
+        setProg(resp.data.prog);
+        
         for (let i = 0; i < resp.data.data.length; i++) {
           calculateDonut(resp.data.data[i]);
         }
@@ -130,10 +132,10 @@ const Dashboard = () => {
         </div>
         <div className="dashboard-charts-row">
           <div className="dashboard-chart-card">
-            <DonutChart completed={donut.completed} total={donut.total} title={"Total Progress"} ct={"Completed"} rt={"Remaining"} />
+            <DonutChart completed={donut.completed>donut.total ? donut.total:donut.completed} total={donut.total} title={"Total Progress"} ct={"Completed"} rt={"Remaining"} />
           </div>
           <div className="dashboard-chart-card">
-            <BarChartComponent data={bar} title={"Last 7 Days Progress"} col={"date"} row={"total_completed_count"} rowname={"Completed"} />
+            <BarChartComponent data={bar} title={"Last 7 Days Progress"} col={"date"} row={"count_of_completed"} rowname={"Completed"} />
           </div>
         </div>
       </div>

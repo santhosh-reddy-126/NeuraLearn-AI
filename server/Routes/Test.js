@@ -32,7 +32,7 @@ test.post("/updateresult", async (req, res) => {
           try {
                const { error } = await supabase.from("quiz").insert([{ user_id: user_id, curr_id: id, topics: topics, total: questions, correct: corrected, score: corrected / questions, review: review, timeSpent: time_spent }])
                if (error) {
-                    res.json({ success: false, message: "Unable to add Curriculum!" })
+                    return res.json({ success: false, message: "Unable to add Curriculum!" })
                }
                return res.json({ success: true })
 

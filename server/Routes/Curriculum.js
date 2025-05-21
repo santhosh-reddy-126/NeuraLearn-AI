@@ -55,7 +55,7 @@ routerc.post("/getcurriculum", async (req, res) => {
           let prog_data = data;
 
           ({ data, error } = await supabase
-               .from('daily_progress_summary')
+               .from('last_7_days_completed_count')
                .select('*'));
 
           if (error) console.error(error);
@@ -99,7 +99,7 @@ routerc.post("/getcurriculumbyid", async (req, res) => {
 
 
 routerc.post("/marktopiccompleted", async (req, res) => {
-     const { user_id, user_email, curr_id, topic } = req.body;
+     const { user_id, user_email, curr_id, topic,time_taken } = req.body;
 
      try {
           const date = new Date();
@@ -119,11 +119,10 @@ routerc.post("/marktopiccompleted", async (req, res) => {
                return res.json({ success: false, message: 'Error fetching completion data' });
           }
 
-          let completed = data[0]?.completed || [];
+          let completed = data[0]?.completed || {};
 
-          // If topic not already marked complete, add it
-          if (!completed.includes(topic)) {
-               completed.push(topic);
+          if (!(topic in completed)) {
+               completed[topic]=time_taken;
           }
 
           // Insert/update daily_progress

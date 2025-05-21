@@ -44,9 +44,11 @@ def generate_quiz_by_topics(topics, questions_per_topic=2):
         "No extra text, no markdown. Only valid JSON output.dont include nextline symbols inside it.send a json parsed string"
     )
 
+    
+
     try:
         response = Bard().get_answer(prompt).get("content")
-
+        print(response)
         if response:
             temp=re.sub(r'^```json\s*|```$', '', response).strip()
             data = json.loads(temp)
@@ -166,16 +168,19 @@ def explain_topic():
     data = request.get_json()
     topic = data.get('topic', '')
     explain_prompt = (
-    "You are an expert teacher. For any given topic from Math, Science, or Computer Science, explain it in simple language "
-    "using the following JSON format only (no extra text), keeping the response within 2500 characters: "
-    "\"def\" is a 1–3 line simple definition avoiding jargon; \"imp\" explains the importance and real-life use; "
-    "\"comp\" is an array listing key components; \"steps\" is an array of objects each with \"title\" and \"content\" describing step-by-step explanations; "
-    "\"ex\" gives an example or application; \"form\" is an array of objects each with \"type\" (either \"formula\" or \"syntax\") and \"content\" describing formulas or code syntax; "
-    "\"mistakes\" is an array listing common mistakes to avoid; \"summary\" is a 2–3 line summary or takeaway. Use simple language, analogies, and code snippets if helpful. "
-    "Now explain the topic:"
+        "You are an expert teacher. For any given topic from Math, Science, or Computer Science, explain it in simple language "
+        "using the following JSON format only (no extra text), keeping the response within 2500 characters: "
+        "\"def\" is a 1–3 line simple definition avoiding jargon; \"imp\" explains the importance and real-life use; "
+        "\"comp\" is an array listing key components; \"steps\" is an array of objects each with \"title\" and \"content\" describing step-by-step explanations; "
+        "\"ex\" gives an example or application; \"form\" is an array of objects each with \"type\" (either \"formula\" or \"syntax\") and \"content\" describing formulas or code syntax; "
+        "\"mistakes\" is an array listing common mistakes to avoid; \"summary\" is a 2–3 line summary or takeaway. Use simple language, analogies, and code snippets if helpful. "
+        "Also include one relevant YouTube video with title and URL, and one relevant article with title and URL in the response. make sure they are existing right now"
+        "Now explain the topic:"
     )
+
          
     ans = Bard().get_answer(explain_prompt+topic).get('content')
+    print(ans)
     if ans:
         match= re.search(r"```json(.*?)```", ans, re.DOTALL)
         if match:
@@ -227,12 +232,12 @@ def gen_curr():
 def gen_quiz():
     data = request.get_json()
     total, topics = int(data.get('total', 0)), data.get('topics', [])
-    
-    if not topics or total not in [15, 60]:
+
+    if not topics or total != 15:
         return jsonify({"success": False, "message": "Invalid input"})
 
-    qpt = 5 if total == 15 else 2
-    chunks = [topics[i:i + 2] for i in range(0, len(topics), 2)] if qpt == 5 else [topics[i:i + 5] for i in range(0, len(topics), 5)]
+    qpt = 5 
+    chunks = [topics[i:i + 2] for i in range(0, len(topics), 2)]
     questions = []
 
     for chunk in chunks:

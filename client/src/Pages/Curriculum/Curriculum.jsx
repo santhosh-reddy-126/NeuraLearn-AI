@@ -323,12 +323,6 @@ const Curriculum = () => {
                             <img src={status === "In Progress" ? progress : com} alt="status" />
                           ) : ""}
                           <img src={del} onClick={() => deleteCurriculum(item.id)} alt="delete" />
-                          <button
-                            className="take-test-btn"
-                            onClick={() => navigate(`/test/${item.id}/${0}`)}
-                          >
-                            📝 Take Test
-                          </button>
                         </div>
                       </div>
                       {/* Downward arrow button */}

@@ -15,7 +15,6 @@ const TakeTest = () => {
      const [testDuration, setTestDuration] = useState(120);
      const [reviewMode, setReviewMode] = useState(false);
 
-
      const getData = async () => {
           try {
                const resp = await axios.post(backend + "api/curriculum/getcurriculumbyid", {
@@ -155,7 +154,7 @@ const TakeTest = () => {
           0
      );
 
-     const onTestComplete = async() => {
+     const onTestComplete = async () => {
           try {
                let temp = localStorage.getItem("user");
                temp = JSON.parse(temp);
@@ -164,10 +163,10 @@ const TakeTest = () => {
                     data: questions,
                     id: id,
                     user_id: temp.id,
-                    time_spent: timeSpent // Send time spent
+                    time_spent: timeSpent
                });
                if (!resp.data.success) {
-                    toast.error("Unable to track Quiz");
+                    toast.error(resp.data.message);
                }
           } catch (e) {
                console.log(e);

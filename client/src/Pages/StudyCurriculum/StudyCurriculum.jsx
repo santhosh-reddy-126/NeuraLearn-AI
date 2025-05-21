@@ -19,19 +19,27 @@ const StudyCurriculum = () => {
   const [day, setDay] = useState(1);
   const [openTopic, setOpenTopic] = useState(null);
   const [topicContents, setTopicContents] = useState({});
+  const [topicStartTimes, setTopicStartTimes] = useState({});
 
   // Mark topic as complete
-  const markComplete = async (topic) => {
+  const markComplete = async (topic, idx) => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       const user_id = user ? user.id : 0;
       const curr_id = data ? data.id : 0;
-      const user_email = user ? user.email: "none@gmail.com"
+      const user_email = user ? user.email : "none@gmail.com";
+
+      // Calculate time taken
+      const key = `${day}-${idx}`;
+      const startTime = topicStartTimes[key] || Date.now();
+      const timeTakenSec = Math.round((Date.now() - startTime) / 1000);
+
       const resp = await axios.post(backend + "api/curriculum/marktopiccompleted", {
         user_id,
         user_email,
         curr_id,
-        topic
+        topic,
+        time_taken: timeTakenSec // <-- send time taken in seconds
       });
       if (resp.data.success) {
         setOpenTopic(null);
@@ -64,7 +72,7 @@ const StudyCurriculum = () => {
 
   const checkTaskCompleted = (topic) => {
     for (let i = 0; i < prog.length; i++) {
-      if (prog[i].completed && prog[i].completed.includes(topic)) {
+      if (prog[i].completed && (topic in prog[i].completed)) {
         return true;
       }
     }
@@ -95,11 +103,20 @@ const StudyCurriculum = () => {
       return;
     }
     setOpenTopic(idx);
+
+    // Set start time for this topic
+    setTopicStartTimes(prev => ({
+      ...prev,
+      [`${day}-${idx}`]: Date.now()
+    }));
+
     if (!topicContents[`${day}-${idx}`]) {
       let val = "";
       try {
         const resp = await axios.post(python + "explain-topic", { topic });
-        if (resp.data.success) val = resp.data.answer;
+        if (resp.data.success){ val = resp.data.answer;
+          console.log(val);
+        }
       } catch (e) {
         console.log(e);
       }
@@ -234,12 +251,45 @@ const StudyCurriculum = () => {
                             </div>
                           </section>
 
+                          {/* Resource Section */}
+                          {(topicContents[`${day}-${idx}`]["youtube"] || topicContents[`${day}-${idx}`]["article"]) && (
+                            <section className="topic-section resource-section">
+                              <h4>
+                                <span role="img" aria-label="resources">🔗</span> Further Learning
+                              </h4>
+                              <div className="resource-links">
+                                {topicContents[`${day}-${idx}`]["youtube"] && (
+                                  <a
+                                    className="resource-link youtube-link"
+                                    href={topicContents[`${day}-${idx}`]["youtube"].url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <img src="https://img.icons8.com/color/48/000000/youtube-play.png" alt="YouTube" />
+                                    <span>{topicContents[`${day}-${idx}`]["youtube"].title}</span>
+                                  </a>
+                                )}
+                                {topicContents[`${day}-${idx}`]["article"] && (
+                                  <a
+                                    className="resource-link article-link"
+                                    href={topicContents[`${day}-${idx}`]["article"].url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <img src="https://img.icons8.com/color/48/000000/read.png" alt="Article" />
+                                    <span>{topicContents[`${day}-${idx}`]["article"].title}</span>
+                                  </a>
+                                )}
+                              </div>
+                            </section>
+                          )}
+
                           {!checkTaskCompleted(topic) && (
                             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2rem" }}>
                               <label className="mark-complete-checkbox">
                                 <input
                                   type="checkbox"
-                                  onChange={() => markComplete(topic)}
+                                  onChange={() => markComplete(topic, idx)}
                                 />
                                 <span className="checkmark"></span>
                                 <span className="checkbox-label">Mark as Complete</span>
