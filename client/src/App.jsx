@@ -8,6 +8,7 @@ import Curriculum from "./Pages/Curriculum/Curriculum"
 import StudyCurriculum from './Pages/StudyCurriculum/StudyCurriculum'
 import TakeTest from './Components/TakeTest/TakeTest'
 import Quiz from './Pages/Quiz/Quiz'
+import AnalyticsPage from './Pages/Analytics/AnalyticsPage'
 function App() {
   return (
     <Router>
@@ -21,6 +22,7 @@ function App() {
         <Route path="/study-curriculum/:id" element={<StudyCurriculum />} />
         <Route path="/test/:id/:day" element={<TakeTest />} />
         <Route path="/quiz" element={<Quiz />} />
+        <Route path="/report/:id" element={<AnalyticsPage />} />
 
 
       </Routes>

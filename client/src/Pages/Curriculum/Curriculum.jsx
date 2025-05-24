@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import progress from "../../assets/progress.png"
 import del from "../../assets/delete.png"
 import com from "../../assets/completed.png"
+import cert from "../../assets/certificate.png"
 
 const Curriculum = () => {
   const [goal, setGoal] = useState("");
@@ -64,20 +65,6 @@ const Curriculum = () => {
     }
   }
 
-  const checkNoOfTaskCompleted = (id) => {
-    let count = 0;
-    for (let i = 0; i < prog.length; i++) {
-      if (prog[i].curr_id === id) {
-        if (prog[i].completed === null) {
-          count = count + 0;
-          continue;
-        }
-
-        count = count + prog[i].completed.length;
-      }
-    }
-    return count;
-  }
   const addCurriculum = async (e) => {
     try {
       const picked = new Date(startdate);
@@ -168,11 +155,10 @@ const Curriculum = () => {
       if (resp.data.success) {
         return resp.data.data; // contains streak, todays_topics, todays_progress, last_quizzes
       } else {
-        toast.error("Failed to fetch dashboard data");
         return null;
       }
     } catch (e) {
-      toast.error("Error fetching dashboard data");
+      console.log(e);
       return null;
     }
   };
@@ -283,50 +269,53 @@ const Curriculum = () => {
                     <div
                       className={`curr-item ${status.toLowerCase().replace(" ", "-")}`}
                       key={item.id}
-                      style={{
-                        background: "#fff",
-                        borderRadius: "1.2rem",
-                        boxShadow: "0 2px 16px #3F8EFC11",
-                        margin: "1.5rem 0",
-                        padding: "1.5rem 2rem",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "0.7rem",
-                        position: "relative"
-                      }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                          <h3
-                            style={{
-                              cursor: "pointer",
-                              margin: 0,
-                              fontWeight: 700,
-                              fontSize: "1.4rem",
-                              color: "#11443c"
-                            }}
-                            onClick={() => navigate(`/study-curriculum/${item.id}`)}
-                          >
+                      <div className="curr-item-header">
+                        <div className="curr-item-main">
+                          <h3 onClick={() => navigate(`/study-curriculum/${item.id}`)}>
                             {item.duration} days of {item.topic}
                           </h3>
+
                           {typeof item.streak === "number" && item.streak > 0 && (
                             <div className="curriculum-streak">
-                              <span role="img" aria-label="fire" style={{ fontSize: 22, verticalAlign: "middle" }}>🔥</span>
-                              <span style={{ marginLeft: 6, fontWeight: 600, color: "#e65100" }}>
-                                Streak: {item.streak} day{item.streak > 1 ? "s" : ""}
-                              </span>
+                              <span role="img" aria-label="fire">🔥</span>
+                              <span>Streak: {item.streak} day{item.streak > 1 ? "s" : ""}</span>
                             </div>
                           )}
                         </div>
+
                         <div className="btns">
-                          {status !== "Not Started" ? (
-                            <img src={status === "In Progress" ? progress : com} alt="status" />
-                          ) : ""}
-                          <img src={del} onClick={() => deleteCurriculum(item.id)} alt="delete" />
+                          {item.completed_count === item.count && item.quiz_count>0 && (
+                            <img
+                              src={cert}
+                              onClick={() => navigate(`/report/${item.id}`)}
+                              width={42}
+                              height={42}
+                              alt="Certificate"
+                              title="View Certificate"
+                              className="btn-icon"
+                            />
+                          )}
+
+                          {status !== "Not Started" && (
+                            <img
+                              src={status === "In Progress" ? progress : com}
+                              alt={status}
+                              className="btn-icon"
+                            />
+                          )}
+
+                          <img
+                            src={del}
+                            onClick={() => deleteCurriculum(item.id)}
+                            alt="Delete"
+                            title="Delete Curriculum"
+                            className="btn-icon"
+                          />
                         </div>
                       </div>
-                      {/* Downward arrow button */}
-                      <div style={{ display: "flex", justifyContent: "center" }}>
+
+                      <div className="expand-section">
                         <button
                           className="expand-dashboard-btn"
                           onClick={() => toggleExpand(item.id)}
@@ -335,24 +324,25 @@ const Curriculum = () => {
                           {expanded[item.id] ? "▲" : "▼"}
                         </button>
                       </div>
-                      {/* Dashboard Data */}
+
                       {expanded[item.id] && (
                         loadingDashboard ? (
-                          <div style={{ textAlign: "center", padding: "1rem" }}>
-                            <Loading /> {/* or any spinner */}
-                          </div>
-                        ) : dashboardData[item.id] && (
-                          <div className="dashboard-details-card">
-                            <div style={{ fontWeight: 700, color: "#1976d2", marginBottom: "0.7rem" }}>Motivation</div>
-                            <div style={{ marginBottom: "1rem" }}>{dashboardData[item.id].motivation}</div>
-                            <div style={{ fontWeight: 700, color: "#1976d2", marginBottom: "0.7rem" }}>Tip</div>
-                            <div style={{ marginBottom: "1rem" }}>{dashboardData[item.id].tip}</div>
-                            <div style={{ fontWeight: 700, color: "#1976d2", marginBottom: "0.7rem" }}>Insight</div>
-                            <div>{dashboardData[item.id].insight}</div>
-                          </div>
+                          <div className="loading-center"><Loading /></div>
+                        ) : (
+                          dashboardData[item.id] && (
+                            <div className="dashboard-details-card">
+                              <h4>Motivation</h4>
+                              <p>{dashboardData[item.id].motivation}</p>
+                              <h4>Tip</h4>
+                              <p>{dashboardData[item.id].tip}</p>
+                              <h4>Insight</h4>
+                              <p>{dashboardData[item.id].insight}</p>
+                            </div>
+                          )
                         )
                       )}
                     </div>
+
                   );
                 })
               }

@@ -1,16 +1,19 @@
 // TakeTest.jsx
 import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
+import BadgePopUp from "../Gamified/BadgePopUp";
 import axios from "axios";
 import { backend, python } from "../../../data";
 import "./TakeTest.css";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import Loading from "../Loading/Loading"; // Make sure this import exists and points to your loading component
+import Loading from "../Loading/Loading";
 
 const TakeTest = () => {
      const { id, day } = useParams();
      const [curr, setcurr] = useState([]);
+     const [showBadge, setShowBadge] = useState(true);
+     const [badge, setbadge] = useState(null);
      const [questions, setquestions] = useState([]);
      const [testDuration, setTestDuration] = useState(120);
      const [reviewMode, setReviewMode] = useState(false);
@@ -167,6 +170,15 @@ const TakeTest = () => {
                });
                if (!resp.data.success) {
                     toast.error(resp.data.message);
+               } else {
+                    toast.info("+20XP Added!🎉");
+                    setbadge(resp.data.myBadge);
+                    if (resp.data.XP > 0) {
+                         toast.info(`+${resp.data.XP} Extra XP Added for your Performance!🎉`);
+                    }
+                    if (resp.data.passed > 0) {
+                         toast.info(`Wohoo! Level ${resp.data.passed + 1} Reached🎉`);
+                    }
                }
           } catch (e) {
                console.log(e);
@@ -272,6 +284,16 @@ const TakeTest = () => {
                                         <button className="test-btn" style={{ marginLeft: 12 }} onClick={() => setReviewMode(true)}>
                                              Review Answers
                                         </button>
+                                        {showBadge && badge!=null ?
+                                        <div id="modalOverlay" className="hidden">
+                                             <div id="popup">
+                                                  <BadgePopUp
+                                                       show={showBadge}
+                                                       badge={badge}
+                                                       onClose={() => setShowBadge(false)}
+                                                  />
+                                             </div>
+                                        </div>: ""}
                                    </div>
                               ) : (
                                    <div className="test-review">

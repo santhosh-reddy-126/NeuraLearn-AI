@@ -3,6 +3,9 @@ from supabase import create_client, Client
 import joblib
 import numpy as np
 from flask_cors import CORS
+
+from datetime import datetime
+
 from bardapi import Bard
 import os
 import re,json,requests
@@ -10,6 +13,99 @@ import time
 
 
 
+def get_cluster_feedback(cluster_number: int) -> dict:
+    tips_data = {
+        0: {
+            "grade": "A",
+            "tips": [
+                "Great performance! Keep up your balanced study habits.",
+                "Continue reviewing material regularly.",
+                "You might help peers improve too."
+            ]
+        },
+        1: {
+            "grade": "E",
+            "tips": [
+                "Focus more on understanding concepts before quizzes.",
+                "Try breaking study sessions into smaller, focused chunks.",
+                "Analyze where you lose time in quizzes."
+            ]
+        },
+        2: {
+            "grade": "E",
+            "tips": [
+                "Your quiz scores are low. Rethink how you're studying.",
+                "Consider using flashcards or active recall.",
+                "Take more time reviewing before the quiz."
+            ]
+        },
+        3: {
+            "grade": "B",
+            "tips": [
+                "Good quiz performance! Keep improving efficiency.",
+                "Try to slightly increase your study time.",
+                "Regular revision can solidify this level."
+            ]
+        },
+        4: {
+            "grade": "D",
+            "tips": [
+                "Rethink your study strategy; it’s not effective.",
+                "Consider practicing with mock quizzes.",
+                "Break long study sessions into short bursts."
+            ]
+        },
+        5: {
+            "grade": "E",
+            "tips": [
+                "You study a lot but scores are low — quality over quantity!",
+                "Change study methods — try teaching others.",
+                "Use concept mapping for better retention."
+            ]
+        },
+        6: {
+            "grade": "B",
+            "tips": [
+                "You're doing well, but quiz time is high — try timed practice.",
+                "Continue with active revision methods.",
+                "Focus on speed along with accuracy."
+            ]
+        },
+        7: {
+            "grade": "E",
+            "tips": [
+                "Very low performance — revisit basics.",
+                "Study in short, focused intervals.",
+                "Watch tutorial videos for better understanding."
+            ]
+        },
+        8: {
+            "grade": "C",
+            "tips": [
+                "Moderate scores — try to improve retention.",
+                "Add daily revision to your schedule.",
+                "Practice low-stakes quizzes to build confidence."
+            ]
+        },
+        9: {
+            "grade": "B",
+            "tips": [
+                "Great scores! Reduce quiz time for efficiency.",
+                "Consider simulating exam conditions.",
+                "Keep reviewing material lightly before quizzes."
+            ]
+        },
+    }
+    return tips_data.get(cluster_number, {"grade": "Unknown", "tips": ["No data available."]})
+
+weakness_model = joblib.load("weakness_model.pkl")
+Scaler = joblib.load("Scaler.pkl")
+def getInfo(study_time,quiz_score,quiz_time):
+    start_data=np.array([study_time,quiz_score,quiz_time])
+    start_data=start_data.reshape(1,-1)
+    my_data = Scaler.transform(start_data)
+    my_cluster=weakness_model.predict(my_data)
+    return get_cluster_feedback(my_cluster[0])
 
 model = joblib.load("model.pkl")
 SUPABASE_URL = "https://yaaanfgcidbukyosgvys.supabase.co"
@@ -81,12 +177,35 @@ def get_cluster_message(cluster):
 def ask_ai():
     data = request.get_json()
     question = data.get('question', '')
+    user_id = data.get('user_id','')
+    
     ans = Bard().get_answer(basic_query+"/n/n"+question).get('content')
     ans = re.sub(r'[*_#`>-]', '', ans)           
     ans = re.sub(r'\n+', ' ', ans)               
     ans = re.sub(r'\s{2,}', ' ', ans)   
     ans = ans.strip()
-    return jsonify({"success":True,"answer": ans})
+
+    response = supabase.rpc(
+        "increment_column",
+        {
+            "table_name": "Users",
+            "column_name": "XP",
+            "increment_by": 5,
+            "where_condition": f"id={user_id}"
+        }
+        ).execute()
+    xp_data = response.data[0]  # Supabase RPCs usually return a list of results
+
+    before = xp_data.get("before_value", 0)
+    after = xp_data.get("after_value", 0)
+
+    # Determine if a level was passed (every 100 XP = new level)
+    before_level = before // 100
+    after_level = after // 100
+
+    passed = after_level if after_level > before_level else 0
+
+    return jsonify({"success":True,"answer": ans,"passed": passed})
 
 @app.route('/classify',methods=['POST'])
 def classify():
@@ -105,9 +224,67 @@ def classify():
 
     return jsonify({"success":True,"data": get_cluster_message(cluster)})
 
+@app.route("/weakness", methods=["POST"])
+def weakness():
+    data = request.get_json()
+
+    if not data or "curr_id" not in data or "user_id" not in data:
+        return jsonify({"error": "Please provide curr_id and user_id in the JSON body"}), 400
+
+    curr_id = data.get("curr_id",'')
+    user_id = data.get("user_id",'')
+
+    study_data = {}
+    study = supabase.table("daily_progress").select("*").eq("curr_id", curr_id).eq("user_id", user_id).execute().data
+
+    for k in range(len(study)):
+        study_data.update(study[k]["completed"])
+
+    quiz_data = supabase.table("quiz").select("*").eq("curr_id", curr_id).eq("user_id", user_id).execute().data
+
+    my_quiz = {}
+    quiz_time = {}
+
+    for i in range(len(quiz_data)):
+        perTopic = quiz_data[i]["timeSpent"] / (quiz_data[i]["total"] / 5)
+        for key in quiz_data[i]["topics"]:
+            if quiz_data[i]["review"].get(key) is not None:
+                my_quiz[key] = 1 - quiz_data[i]["review"][key] / 5
+            else:
+                my_quiz[key] = 1
+            quiz_time[key] = perTopic
+
+    result = []
+    for topic in study_data:
+        if topic in my_quiz and topic in quiz_time:
+            result.append({
+                topic: getInfo(study_data[topic], my_quiz[topic], quiz_time[topic])
+            })
+
+    response = supabase.rpc(
+        "increment_column",
+        {
+            "table_name": "Users",
+            "column_name": "XP",
+            "increment_by": 5,
+            "where_condition": f"id={user_id}"
+        }
+        ).execute()
+    xp_data = response.data[0]  
+
+    before = xp_data.get("before_value", 0)
+    after = xp_data.get("after_value", 0)
+
+    before_level = before // 100
+    after_level = after // 100
+
+    passed = after_level if after_level > before_level else 0
+    print(passed)
 
 
-from datetime import datetime
+
+    return jsonify({"success":True,"data": result,"passed":passed})
+
 
 @app.route('/user-dashboard-data', methods=['POST'])
 def user_dashboard_data():
@@ -121,6 +298,7 @@ def user_dashboard_data():
     today = datetime.now().strftime('%Y-%m-%d')
     progress_resp = supabase.from_("daily_progress").select("*").eq("user_id", user_id).eq("curr_id", curr_id).eq("date", today).single().execute()
     todays_progress = progress_resp.data if progress_resp.data else {}
+    
     todays_topics = todays_progress.get("completed", []) if todays_progress else []
 
     quiz_resp = supabase.from_("quiz").select("*").eq("user_id", user_id).eq("curr_id", curr_id).order("created_at", desc=True).limit(3).execute()
@@ -169,26 +347,33 @@ def explain_topic():
     topic = data.get('topic', '')
     explain_prompt = (
         "You are an expert teacher. For any given topic from Math, Science, or Computer Science, explain it in simple language "
-        "using the following JSON format only (no extra text), keeping the response within 2500 characters: "
+        "using the following JSON format only (no extra text), keeping the response strictly within 2400 characters: "
         "\"def\" is a 1–3 line simple definition avoiding jargon; \"imp\" explains the importance and real-life use; "
         "\"comp\" is an array listing key components; \"steps\" is an array of objects each with \"title\" and \"content\" describing step-by-step explanations; "
         "\"ex\" gives an example or application; \"form\" is an array of objects each with \"type\" (either \"formula\" or \"syntax\") and \"content\" describing formulas or code syntax; "
         "\"mistakes\" is an array listing common mistakes to avoid; \"summary\" is a 2–3 line summary or takeaway. Use simple language, analogies, and code snippets if helpful. "
         "Also include one relevant YouTube video with title and URL, and one relevant article with title and URL in the response. make sure they are existing right now"
-        "Now explain the topic:"
+        "Now explain the topic within 2400 characters:"
     )
 
          
     ans = Bard().get_answer(explain_prompt+topic).get('content')
-    print(ans)
-    if ans:
-        match= re.search(r"```json(.*?)```", ans, re.DOTALL)
-        if match:
-            json_str = match.group(1).strip()
-            ans = json.loads(json_str)
-            return jsonify({"success":True,"answer": ans})
-        else:
-            return jsonify({"success":False,"message": "Sorry! Unable to Identify Content"})
+
+    match = re.search(r"```json\s*(.*?)\s*```", ans, re.DOTALL | re.IGNORECASE)
+    if match:
+        json_str = match.group(1).strip()
+        print("Extracted JSON string:")
+        print(json_str)
+    else:
+        print("No ```json block found, maybe ans is raw JSON or missing backticks.")
+        json_str = ans  # try using ans as raw JSON
+
+    try:
+        ans_json = json.loads(json_str)
+        return jsonify({"success": True, "answer": ans_json})
+    except json.JSONDecodeError as e:
+        return jsonify({"success": False, "message": f"JSON decode error: {str(e)}"})
+
     else:
 
         return jsonify({"success":False,"message": "Sorry! Unable to Generate Curriculum"})
@@ -205,7 +390,7 @@ def gen_curr():
         "in this JSON format only (no extra text): "
         "{'Day 1': {'Topic': '', 'Description': '', 'Subtopics': ['']}, 'Day 2': ...}. "
         "Use simple language, keep it short, structured, and well-formatted. "
-        "Each day must have equal topics."
+        "Each day must have equal topics.Each day can have maximum of 3 topics only"
     )
 
     try:

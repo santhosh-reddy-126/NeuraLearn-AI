@@ -11,6 +11,7 @@ const AskAIChat = () => {
   const handleSend = async (e) => {
     e.preventDefault();
     if (chatInput.trim() === "") return;
+    const user = JSON.parse(localStorage.getItem("user"))||{};
     setMessages(prev => [...prev, { sender: "user", text: chatInput }]);
     const currentInput = chatInput;
     setChatInput("");
@@ -18,13 +19,18 @@ const AskAIChat = () => {
       const resp = await fetch(python + "ask-ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: currentInput })
+        body: JSON.stringify({ question: currentInput,user_id: user?.id })
       });
       const data = await resp.json();
       if (data.success) {
+        toast.info("+5XP Added!🎉")
+        if(data.passed>0){
+            toast.info(`Wohoo! Level ${data.passed+1} Reached🎉`);
+        }
         setMessages(prev => [...prev, { sender: "AI", text: data.answer }]);
       }
     } catch (err) {
+      console.log(err);
       toast.error('AI is busy Sleeping.');
     }
   };

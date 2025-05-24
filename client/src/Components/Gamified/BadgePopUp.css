@@ -1,0 +1,56 @@
+/* Backdrop overlay */
+.badge-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+/* Popup container */
+.badge-popup-container {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  padding: 1.5rem 2rem;
+  width: 90%;
+  max-width: 28rem;
+  text-align: center;
+}
+
+/* Emoji */
+.badge-popup-emoji {
+  font-size: 6rem;  /* big emoji size */
+  margin-bottom: 1rem;
+}
+
+/* Title */
+.badge-popup-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* Description */
+.badge-popup-description {
+  color: #4B5563; /* Tailwind gray-600 */
+  margin-bottom: 1.5rem;
+}
+
+/* Button */
+.badge-popup-button {
+  background-color: #2563EB; /* Tailwind blue-600 */
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.badge-popup-button:hover {
+  background-color: #1D4ED8; /* Tailwind blue-700 */
+}

@@ -65,4 +65,21 @@ router.post('/login', async (req, res) => {
      }
 })
 
+
+
+router.post('/getXP', async (req, res) => {
+     const {id} = req.body;
+     try{
+          const data = await supabase.from('Users').select('*').eq('id',id).single();
+          res.json({
+            success:true,
+            XP: data.data.XP,
+            badges: data.data.badges
+          });
+     }catch(e){
+          console.log(e);
+          res.status(500).json({success:false,message: "Server error"});
+     }
+})
+
 export default router;

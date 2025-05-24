@@ -13,6 +13,7 @@ import Loading from "../../Components/Loading/Loading"; // <-- import your loadi
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user')) || {};
   const name = user.name || "User";
+  const [users,setUsers]=useState([]);
   const nav = useNavigate();
   const [curr, allcurr] = useState([]);
   const [prog, setProg] = useState([]);
@@ -45,14 +46,22 @@ const Dashboard = () => {
     }
   };
 
-  // Calculate donut values for each curriculum item
-  const calculateDonut = (item) => {
-    const day = 1 + Math.floor((new Date() - new Date(item.startdate)) / (1000 * 60 * 60 * 24));
-    Setdonut((prev) => ({
-      ...prev,
-      total: (item.curriculum[`Day ${day}`].Subtopics.length) * (day)
-    }));
+  const calculateDonut = (dataList) => {
+    let total = 0;
+
+    dataList.forEach(item => {
+      const day = 1 + Math.floor((new Date() - new Date(item.startdate)) / (1000 * 60 * 60 * 24));
+      if (item.curriculum[`Day ${day}`]) {
+        total += item.curriculum[`Day ${day}`].Subtopics.length;
+      }
+    });
+
+    Setdonut({
+      total,
+      completed: 0
+    });
   };
+
 
   const getCurriculum = async (e) => {
     try {
@@ -68,14 +77,13 @@ const Dashboard = () => {
         allcurr(resp.data.data);
         setbar(resp.data.bar);
         console.log(resp.data.bar);
+        setUsers(resp.data.leaderboard);
         setProg(resp.data.prog);
-        
-        for (let i = 0; i < resp.data.data.length; i++) {
-          calculateDonut(resp.data.data[i]);
-        }
-        Setdonut((prev) => ({
+
+        calculateDonut(resp.data.data); 
+        Setdonut(prev => ({
           ...prev,
-          completed: resp.data.donut
+          completed: resp.data.donut 
         }));
       }
     } catch (e) {
@@ -132,13 +140,38 @@ const Dashboard = () => {
         </div>
         <div className="dashboard-charts-row">
           <div className="dashboard-chart-card">
-            <DonutChart completed={donut.completed>donut.total ? donut.total:donut.completed} total={donut.total} title={"Total Progress"} ct={"Completed"} rt={"Remaining"} />
+            {console.log(donut)}
+            <DonutChart completed={donut.completed > donut.total ? donut.total : donut.completed} total={donut.total} title={"Today Progress"} ct={"Completed"} rt={"Remaining"} />
           </div>
           <div className="dashboard-chart-card">
             <BarChartComponent data={bar} title={"Last 7 Days Progress"} col={"date"} row={"count_of_completed"} rowname={"Completed"} />
           </div>
         </div>
       </div>
+
+      {users && users.length>0 ? <div className="leaderboard-container">
+      <h2 className="leaderboard-title">🏆 Leaderboard – Top 20 by XP</h2>
+      <div className="leaderboard-table-container">
+        <table className="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>XP</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{user.name}</td>
+                <td>{user.xp}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>:""}
       <AskAIChat />
     </div>
   );

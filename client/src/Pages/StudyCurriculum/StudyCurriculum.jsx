@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import "./StudyCurriculum.css";
 import { backend, python } from "../../../data.jsx";
+import BadgePopUp from "../../Components/Gamified/BadgePopUp.jsx"
 import left from "../../assets/left.png";
 import right from "../../assets/right.png";
 import tcomp from "../../assets/taskcomp.png";
@@ -16,10 +17,13 @@ const StudyCurriculum = () => {
   const [prog, setProg] = useState({});
   const { id } = useParams();
   const nav = useNavigate();
+  const [showBadge, setShowBadge] = useState(true);
+  const [badge, setbadge] = useState(null);
   const [day, setDay] = useState(1);
   const [openTopic, setOpenTopic] = useState(null);
   const [topicContents, setTopicContents] = useState({});
   const [topicStartTimes, setTopicStartTimes] = useState({});
+
 
   // Mark topic as complete
   const markComplete = async (topic, idx) => {
@@ -42,9 +46,18 @@ const StudyCurriculum = () => {
         time_taken: timeTakenSec // <-- send time taken in seconds
       });
       if (resp.data.success) {
+        setbadge(resp.data.myBadge);
+        console.log(resp.data);
         setOpenTopic(null);
         getData();
         toast.success(`${topic} Marked as Completed`);
+        toast.info(`+${resp.data.XP}XP Added!🎉`);
+        if (resp.data.StreakXP > 0) {
+          toast.info(`+${resp.data.StreakXP}XP Extra Added🎉`);
+        }
+        if (resp.data.passed > 0) {
+          toast.info(`Wohoo! Level ${resp.data.passed + 1} Reached🎉`);
+        }
       } else {
         toast.error(resp.data.message);
       }
@@ -114,7 +127,8 @@ const StudyCurriculum = () => {
       let val = "";
       try {
         const resp = await axios.post(python + "explain-topic", { topic });
-        if (resp.data.success){ val = resp.data.answer;
+        if (resp.data.success) {
+          val = resp.data.answer;
           console.log(val);
         }
       } catch (e) {
@@ -141,6 +155,7 @@ const StudyCurriculum = () => {
             <img src={right} alt="Next Day" width={40} height={40} />
           </button>
         </div>
+        
         <div className="topics-list">
           {Object.keys(data).length > 0 &&
             data.curriculum?.[`Day ${day}`]?.Subtopics?.map((topic, idx) => (
@@ -318,6 +333,16 @@ const StudyCurriculum = () => {
           </div>
         </div>
       </div>
+      {showBadge && badge!=null ?  
+      <div id="modalOverlay" className="hidden">
+        <div id="popup">
+          <BadgePopUp
+          show={showBadge}
+          badge={badge}
+          onClose={() => setShowBadge(false)}
+        />
+        </div>
+      </div>: ""}
       <AskAIChat />
     </div>
   );

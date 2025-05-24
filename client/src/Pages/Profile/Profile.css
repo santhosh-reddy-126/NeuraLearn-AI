@@ -1,79 +1,166 @@
 .profile-bg {
   min-height: 100vh;
-  background: #f7f9fb;
+  background: #f0f2f5;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .profile-card {
-  background: #fff;
-  border-radius: 1.2rem;
-  box-shadow: 0 4px 24px 0 rgba(63,142,252,0.10);
-  padding: 2.2rem 2rem 2rem 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem 2.5rem 3rem;
   width: 100%;
-  max-width: 340px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: box-shadow 0.18s;
-  animation: fadeIn 0.7s;
+  max-width: 360px;
+  text-align: center;
+  transition: box-shadow 0.3s ease;
 }
 
 .profile-card:hover {
-  box-shadow: 0 8px 32px 0 rgba(63,142,252,0.13);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 .profile-avatar-glow {
-  background: linear-gradient(135deg, #3F8EFC 60%, #3EE4B2 100%);
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 1.5rem;
   border-radius: 50%;
-  padding: 4px;
-  margin-bottom: 1.2rem;
-  box-shadow: 0 0 0 3px #fff;
+  padding: 6px;
+  background: linear-gradient(135deg, #4ade80 40%, #22d3ee 90%);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .profile-avatar-glow img {
-  width: 80px;
-  height: 80px;
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
-  border: 2px solid #fff;
-  background: #fff;
+  border: 3px solid white;
   object-fit: cover;
+  background: white;
 }
 
+/* Softer text color here */
 .profile-name {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #3F8EFC;
-  margin-bottom: 0.2rem;
-  letter-spacing: 0.01em;
-  text-align: center;
-}
-
-.profile-divider {
-  width: 40px;
-  height: 2px;
-  background: #e2e8f0;
-  border-radius: 2px;
-  margin: 0.7rem 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #374151; /* changed from #111827 to a dark gray */
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.02em;
 }
 
 .profile-email {
-  color: #6B7280;
   font-size: 1rem;
-  margin-bottom: 0.5rem;
-  word-break: break-all;
-  text-align: center;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  word-break: break-word;
+}
+
+.profile-divider {
+  width: 50px;
+  height: 3px;
+  background: #22d3ee;
+  margin: 0 auto 1.5rem;
+  border-radius: 3px;
+}
+
+.profile-xp-section {
+  font-weight: 600;
+  color: #4b5563; /* softer gray for the XP text */
+}
+
+.profile-xp-section p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 14px;
+  background-color: #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 1rem 0 0.75rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #4ade80);
+  width: 0;
+  border-radius: 14px 0 0 14px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 8px #22d3ee;
 }
 
 .animated-fadein {
-  animation: fadeIn 0.7s;
+  animation: fadeIn 0.6s ease forwards;
+  opacity: 0;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px);}
-  to { opacity: 1; transform: translateY(0);}
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
+
+
+
+.profile-badges-section {
+  margin-top: 1.8rem;
+  text-align: center;
+}
+
+.profile-badges-section h3 {
+  font-size: 1.2rem;
+  color: #22d3ee;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  user-select: none;
+}
+
+.badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #e0f7fa;
+  border-radius: 24px;
+  padding: 0.4rem 1rem;
+  box-shadow: 0 0 6px #22d3eeaa;
+  color: #067b7f;
+  font-weight: 600;
+  font-size: 0.9rem;
+  user-select: none;
+  transition: transform 0.2s ease;
+  cursor: default;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #22d3ee;
+}
+
+.badge-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
