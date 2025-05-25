@@ -74,6 +74,9 @@
   color: #222;
 }
 
+
+
+
 .askai-btn {
   background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
   color: #fff;
@@ -330,14 +333,14 @@
   }
   .dashboard-chart-card {
     min-width: 260px;
-    max-width: 98vw;
+    max-width: 90vw;
     padding: 1.2rem 0.5rem;
   }
 }
 
 
 .leaderboard-container {
-  max-width: 600px;
+  max-width: 96%;
   margin: 2rem auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #fff;

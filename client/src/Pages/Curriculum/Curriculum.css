@@ -1,3 +1,4 @@
+/* ===== Base Setup ===== */
 .curriculum-main {
   display: flex;
   flex-direction: column;
@@ -8,14 +9,15 @@
   width: 100%;
 }
 
+/* ===== Curriculum Section ===== */
 .curriculum-section {
   margin: 2.5rem 0 1.5rem 0;
   width: 100%;
   max-width: 1000px;
   background: #fff;
   border-radius: 1.5rem;
-  box-shadow: 0 8px 40px 0 rgba(63,142,252,0.13), 0 1.5px 8px 0 #3F8EFC22;
-  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  box-shadow: 0 8px 40px rgba(63, 142, 252, 0.13), 0 1.5px 8px #3f8efc22;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -31,21 +33,20 @@
   inset: 0;
   border-radius: 1.5rem;
   padding: 2px;
-  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
+  background: linear-gradient(90deg, #3f8efc 60%, #3ee4b2 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   z-index: 0;
   pointer-events: none;
 }
 
+/* ===== Form Inputs ===== */
 .curriculum-form {
   display: flex;
-  gap: 1.2rem;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 1.2rem;
   margin-bottom: 2.2rem;
   z-index: 1;
   position: relative;
@@ -61,17 +62,17 @@
   background: #f7f9fb;
   color: #222;
   transition: border 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 4px 0 #3F8EFC11;
+  box-shadow: 0 1px 4px #3f8efc11;
 }
 
 .curriculum-input:focus {
-  border: 2px solid #3F8EFC;
+  border: 2px solid #3f8efc;
   outline: none;
-  box-shadow: 0 2px 8px 0 #3F8EFC22;
+  box-shadow: 0 2px 8px #3f8efc22;
 }
 
 .curriculum-btn {
-  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
+  background: linear-gradient(90deg, #3f8efc 60%, #3ee4b2 100%);
   color: #fff;
   font-weight: 700;
   border: none;
@@ -80,7 +81,7 @@
   font-size: 1.1rem;
   cursor: pointer;
   transition: opacity 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px 0 #3F8EFC22;
+  box-shadow: 0 2px 8px #3f8efc22;
 }
 
 .curriculum-btn:disabled {
@@ -88,23 +89,23 @@
   cursor: not-allowed;
 }
 
+/* ===== Result Display ===== */
 .curriculum-result {
   margin-top: 1.5rem;
-  color: #222;
   background: #f7f9fb;
   border-radius: 1.2rem;
   padding: 2rem 1.5rem;
-  box-shadow: 0 2px 12px 0 #3F8EFC11;
+  box-shadow: 0 2px 12px #3f8efc11;
   max-height: 400px;
   overflow-y: auto;
   z-index: 1;
   position: relative;
   scrollbar-width: thin;
-  scrollbar-color: #3F8EFC #e2e8f0;
+  scrollbar-color: #3f8efc #e2e8f0;
 }
 
 .curriculum-result h3 {
-  color: #3F8EFC;
+  color: #3f8efc;
   margin-bottom: 1.2rem;
   font-size: 1.35rem;
   font-weight: 700;
@@ -123,16 +124,16 @@
   background: #fff;
   border-radius: 0.7rem;
   padding: 0.7rem 1rem;
-  box-shadow: 0 1px 4px 0 #3F8EFC11;
+  box-shadow: 0 1px 4px #3f8efc11;
 }
 
 .curriculum-result li strong {
-  color: #3F8EFC;
+  color: #3f8efc;
   font-weight: 600;
 }
 
 .curriculum-result p {
-  margin: 0.3rem 0 0.5rem 0;
+  margin: 0.3rem 0 0.5rem;
   color: #444;
 }
 
@@ -141,6 +142,7 @@
   margin-top: 0.3rem;
 }
 
+/* ===== Scrollbar Styling ===== */
 .curriculum-result::-webkit-scrollbar {
   width: 8px;
   border-radius: 8px;
@@ -148,14 +150,15 @@
 }
 
 .curriculum-result::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #3F8EFC 60%, #3EE4B2 100%);
+  background: linear-gradient(135deg, #3f8efc 60%, #3ee4b2 100%);
   border-radius: 8px;
 }
 
 .curriculum-result::-webkit-scrollbar-thumb:hover {
-  background: #3F8EFC;
+  background: #3f8efc;
 }
 
+/* ===== Date & Actions ===== */
 .curriculum-actions {
   display: flex;
   gap: 1.2rem;
@@ -169,15 +172,9 @@
   display: flex;
   align-items: center;
   font-weight: 600;
-  color: #3F8EFC;
+  color: #3f8efc;
   font-size: 1.08rem;
   gap: 0.5rem;
-}
-
-.curriculum-date-title {
-  display: flex;
-  align-items: center;
-  margin-right: 0.5rem;
 }
 
 .curriculum-date {
@@ -188,17 +185,16 @@
   background: #fff;
   color: #222;
   transition: border 0.2s;
-  box-shadow: 0 1px 4px 0 #3F8EFC11;
-  margin-left: 0.5rem;
+  box-shadow: 0 1px 4px #3f8efc11;
 }
 
 .curriculum-date:focus {
-  border: 1.5px solid #3F8EFC;
+  border: 1.5px solid #3f8efc;
   outline: none;
 }
 
 .curriculum-add-btn {
-  background: linear-gradient(90deg, #3F8EFC 60%, #3EE4B2 100%);
+  background: linear-gradient(90deg, #3f8efc 60%, #3ee4b2 100%);
   color: #fff;
   font-weight: 700;
   border: none;
@@ -207,20 +203,21 @@
   font-size: 1.08rem;
   cursor: pointer;
   transition: opacity 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px 0 #3F8EFC22;
+  box-shadow: 0 2px 8px #3f8efc22;
 }
 
 .curriculum-add-btn:hover {
   opacity: 0.9;
-  box-shadow: 0 4px 16px 0 #3F8EFC22;
+  box-shadow: 0 4px 16px #3f8efc22;
 }
 
+/* ===== Curriculum Items ===== */
 .my-curriculums {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #3F8EFC;
+  color: #3f8efc;
   text-align: center;
   padding: 2rem 1rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -305,6 +302,7 @@
   transform: scale(1.15);
 }
 
+/* ===== Expand & Dashboard ===== */
 .expand-section {
   text-align: center;
 }
@@ -339,17 +337,19 @@
   margin-bottom: 0.4rem;
 }
 
-.dashboard-details-card p {
-  margin: 0 0 1rem 0;
-  line-height: 1.6;
-}
-
-.loading-center {
-  text-align: center;
-  padding: 1rem;
-}
-
+/* ===== Responsive Media Queries ===== */
 @media (max-width: 768px) {
+  .curriculum-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .curriculum-actions {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+  }
+
   .curr-item-header {
     flex-direction: column;
     align-items: flex-start;
@@ -357,5 +357,27 @@
 
   .btns {
     justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .curriculum-input,
+  .curriculum-btn,
+  .curriculum-date,
+  .curriculum-add-btn {
+    width: 90%;
+    margin-left: 2%;
+    font-size: 1rem;
+
+  }
+
+  .curr-item h3 {
+    font-size: 1.2rem;
+  }
+
+  .dashboard-details-card {
+    padding: 0rem;
+    width: 90%;
   }
 }

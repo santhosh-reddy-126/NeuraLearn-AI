@@ -31,22 +31,29 @@ const Curriculum = () => {
 
   const getCurriculum = async (e) => {
     setLoadingCurriculums(true);
-    setLoadingDashboard(true); // Start dashboard loading
+    setLoadingDashboard(true);
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const email = user.email;
+      const user_id = user.id;
+      const token = localStorage.getItem("token");
 
       const resp = await axios.post(backend + "api/curriculum/getcurriculum", {
-        email: email
-      });
+        email: email,
+        userId: user_id
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
       if (!resp.data.success) {
         toast.success("Unable to get Curriculum!")
       } else {
         allcurr(resp.data.data);
         setProg(resp.data.prog);
-        setLoadingCurriculums(false); // Curriculum loaded
-
-        // Now fetch dashboard data
+        setLoadingCurriculums(false); 
         const temp = resp.data.data;
         const dashboardResults = {};
         await Promise.all(
@@ -56,7 +63,7 @@ const Curriculum = () => {
           })
         );
         setDashboardData(dashboardResults);
-        setLoadingDashboard(false); // Dashboard loaded
+        setLoadingDashboard(false);
       }
     } catch (e) {
       console.log(e);
@@ -72,6 +79,7 @@ const Curriculum = () => {
         toast.error("Please select a valid start date.");
         return;
       }
+      const token = localStorage.getItem("token");
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -94,7 +102,13 @@ const Curriculum = () => {
         startdate: startdate,
         email: email,
         count: count
-      });
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
       if (resp.data.success) {
         toast.success("Curriculum Added!")
       }
@@ -104,9 +118,16 @@ const Curriculum = () => {
   };
   const deleteCurriculum = async (id) => {
     try {
+      const token = localStorage.getItem("token");
       const resp = await axios.post(backend + "api/curriculum/deletecurriculum", {
         id: id,
-      });
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
       if (resp.data.success) {
         toast.success("Curriculum deleted!");
         getCurriculum();
@@ -125,10 +146,17 @@ const Curriculum = () => {
     setLoadingCurriculum(true);
     setCurriculum(null);
     try {
+      const token = localStorage.getItem("token");
       const resp = await axios.post(python + "generate-curriculum", {
         goal,
         duration: duration.trim()
-      });
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
       if (resp.data.success) {
         setCurriculum(resp.data.data);
       } else {
@@ -145,17 +173,24 @@ const Curriculum = () => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const user_id = user.id;
     const user_email = user.email;
-
+    const token = localStorage.getItem("token");
     try {
       const resp = await axios.post(python + "user-dashboard-data", {
         user_id,
         user_email,
         curr_id: curriculumId
-      });
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
       if (resp.data.success) {
-        return resp.data.data; // contains streak, todays_topics, todays_progress, last_quizzes
+        console.log(resp.data)
+        return resp.data.data; 
       } else {
-        return null;
+        return {};
       }
     } catch (e) {
       console.log(e);
@@ -329,7 +364,7 @@ const Curriculum = () => {
                         loadingDashboard ? (
                           <div className="loading-center"><Loading /></div>
                         ) : (
-                          dashboardData[item.id] && (
+                          dashboardData[item.id] && Object.keys(dashboardData[item.id]).length>0 && (
                             <div className="dashboard-details-card">
                               <h4>Motivation</h4>
                               <p>{dashboardData[item.id].motivation}</p>

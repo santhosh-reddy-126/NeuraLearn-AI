@@ -60,8 +60,7 @@ const Profile = () => {
             <p>{100 - progress}XP More to next level</p>
           </div>
 
-          {/* Badges Section */}
-          {badges.length > 0 && (
+          {badges && badges.length > 0 && (
             <div className="profile-badges-section">
               <h3>Badges</h3>
               <div className="badges-container">

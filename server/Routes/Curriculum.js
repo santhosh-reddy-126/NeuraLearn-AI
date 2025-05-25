@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { createClient } from '@supabase/supabase-js'
+import verifyToken from "../Token.js"
 
 
 const supabaseUrl = "https://yaaanfgcidbukyosgvys.supabase.co"
@@ -8,23 +9,11 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 const routerc = Router()
 
 
-
-function getDateOnly(startdate) {
-     const parts = startdate.split('-');
-     const year = parseInt(parts[0], 10);
-     const month = parseInt(parts[1], 10) - 1;
-     const day = parseInt(parts[2], 10);
-
-     return new Date(year, month, day, 0, 0, 0, 0);
-}
-
-routerc.post("/addcurriculum", async (req, res) => {
+routerc.post("/addcurriculum",verifyToken, async (req, res) => {
      const { email, goal, duration, curriculum, startdate, count } = req.body;
-     console.log(startdate);
      const dateOnly = new Date(startdate);
      dateOnly.setDate(dateOnly.getDate() + 1);
      dateOnly.setHours(0, 0, 0, 0);
-     console.log(dateOnly);
      try {
           const { data, error } = await supabase.from("curriculum").insert([{ email: email, topic: goal, duration: duration, curriculum: curriculum, startdate: dateOnly, count: count }])
           if (error) {
@@ -40,45 +29,32 @@ routerc.post("/addcurriculum", async (req, res) => {
 })
 
 
-routerc.post("/getcurriculum", async (req, res) => {
-     const { email } = req.body;
-     try {
-          let { data, error } = await supabase.from("curriculum").select("*").eq("email", email);
-          if (error) {
-               return res.json({ success: false, message: "Unable to get Curriculum data!" })
-          }
-          let main_data = data;
-          ({ data, error } = await supabase.from("daily_progress").select("*"));
-          if (error) {
-               return res.json({ success: false, message: "Unable to get Curriculum data!" })
-          }
-          let prog_data = data;
+routerc.post("/getcurriculum", verifyToken, async (req, res) => {
+  const { email, userId } = req.body;
 
-          ({ data, error } = await supabase
-               .from('last_7_days_completed_count')
-               .select('*'));
+  try {
+    const { data: curriculumData, error: curriculumError } = await supabase.from("curriculum").select("*").eq("email", email);
+    if (curriculumError) return res.json({ success: false });
 
-          if (error) console.error(error);
+    const { data: fullProgressData, error: fullProgressError } = await supabase.from("daily_progress").select("*");
+    if (fullProgressError) return res.json({ success: false });
 
-          let bar_data = data;
-          ({ data, error } = await supabase
-               .from('today_progress_summary')
-               .select('*'));
+    const { data: barChartData } = await supabase.rpc("select_daily_progress_by_user", { p_user_id: userId });
+    const { data: donutSummary } = await supabase.from("today_progress_summary").select("*");
+    const { data: leaderboardData } = await supabase.rpc("get_top_leaderboard");
 
-          if (error) console.error(error);
-          const { data: leaderboard, error:leaderboardError } = await supabase.rpc('get_top_leaderboard');
-
-          if (leaderboardError) {
-               console.error('Leaderboard fetch error:', leaderboardError);
-          }
-          res.json({ success: true, data: main_data, prog: prog_data, bar: bar_data, donut: data[0].total_completed_today,leaderboard: leaderboard })
-
-     } catch (e) {
-          console.log(e)
-          res.json({ success: false, message: "Unable to get Curriculum data!" })
-     }
-
-})
+    res.json({
+      success: true,
+      data: curriculumData,
+      prog: fullProgressData,
+      bar: barChartData || [],
+      donut: donutSummary?.[0]?.total_completed_today || 0,
+      leaderboard: leaderboardData || []
+    });
+  } catch {
+    res.json({ success: false });
+  }
+});
 
 routerc.post("/getcurriculumbyid", async (req, res) => {
      const { id } = req.body;
@@ -344,7 +320,7 @@ routerc.post("/analytics", async (req, res) => {
 
 
 
-routerc.post("/deletecurriculum", async (req, res) => {
+routerc.post("/deletecurriculum",verifyToken, async (req, res) => {
      const { id } = req.body;
      try {
           const { data, error } = await supabase.from("curriculum").delete("*").eq("id", id);

@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(2, 2, 2, 0.87);
-  background-color: #242424;
+  background-color: #F7F9FB;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -17,6 +17,7 @@ body, #root {
   background: #F7F9FB; 
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
   min-height: 100vh;
 }
 

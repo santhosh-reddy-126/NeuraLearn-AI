@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from supabase import create_client, Client
 import joblib
 import numpy as np
+import jwt
 from flask_cors import CORS
 
 from datetime import datetime
@@ -119,9 +120,32 @@ os.environ["_BARD_API_KEY"]="g.a000vAhY6vLMzSpgiKBt3_LQApd5o0A2FPT0NTvExDkAiDMEt
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-basic_query="if i ask any question provide explanation for whatever i ask in short and clear manner , also provide one short example if it is really complex concept. else respond accordingly also dont specify these requirements in the reply.  "
+basic_query="if i just give any topic to explain , Give explanation in small with one example and explain how that example matches the real defination or working.if its not just a topic to explain,Explain as your wish but in short only"
 
+SECRET_KEY = os.getenv("SECRET_KEY", "neuralearn_secret_key")
 
+from functools import wraps
+
+def token_required(f):
+    @wraps(f)  # <-- Add this line to preserve the original function's metadata
+    def wrapper(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({"message": "Token is missing or invalid"}), 403
+
+        token = auth_header.split(" ")[1]
+
+        try:
+            decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            request.user = decoded  # You can store user info in request
+        except jwt.ExpiredSignatureError:
+            return jsonify({"message": "Token has expired"}), 403
+        except jwt.InvalidTokenError:
+            return jsonify({"message": "Invalid token"}), 403
+
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def generate_quiz_by_topics(topics, questions_per_topic=2):
@@ -208,6 +232,7 @@ def ask_ai():
     return jsonify({"success":True,"answer": ans,"passed": passed})
 
 @app.route('/classify',methods=['POST'])
+@token_required
 def classify():
     data = request.get_json()
     id = data.get('user_id', '')
@@ -287,58 +312,65 @@ def weakness():
 
 
 @app.route('/user-dashboard-data', methods=['POST'])
+@token_required
 def user_dashboard_data():
-    data = request.get_json()
-    user_email = data.get('user_email')  
-    user_id = data.get('user_id')
-    curr_id = data.get('curr_id')
-    streak_resp = supabase.from_("curriculum").select("streak").eq("id", curr_id).eq("email", user_email).single().execute()
-    streak = streak_resp.data["streak"] if streak_resp.data else 0
+    try:
+        data = request.get_json()
+        user_email = data.get('user_email')  
+        user_id = data.get('user_id')
+        curr_id = data.get('curr_id')
+        streak_resp = supabase.from_("curriculum").select("streak").eq("id", curr_id).eq("email", user_email).single().execute()
+        streak = streak_resp.data["streak"] if streak_resp.data else 0
 
-    today = datetime.now().strftime('%Y-%m-%d')
-    progress_resp = supabase.from_("daily_progress").select("*").eq("user_id", user_id).eq("curr_id", curr_id).eq("date", today).single().execute()
-    todays_progress = progress_resp.data if progress_resp.data else {}
+        today = datetime.now().strftime('%Y-%m-%d')
+        progress_resp = supabase.from_("daily_progress").select("*").eq("user_id", user_id).eq("curr_id", curr_id).eq("date", today).limit(1).execute()
+        todays_progress = progress_resp.data if progress_resp.data else {}
     
-    todays_topics = todays_progress.get("completed", []) if todays_progress else []
+        todays_topics = todays_progress.get("completed", []) if todays_progress else []
 
-    quiz_resp = supabase.from_("quiz").select("*").eq("user_id", user_id).eq("curr_id", curr_id).order("created_at", desc=True).limit(3).execute()
-    last_quizzes = quiz_resp.data if quiz_resp.data else []
-    prompt = f"""
-    You are a supportive and intelligent learning coach. A user is using a daily part-time learning app. Based on their progress and recent activity, generate:
+        quiz_resp = supabase.from_("quiz").select("*").eq("user_id", user_id).eq("curr_id", curr_id).order("created_at", desc=True).limit(3).execute()
+        last_quizzes = quiz_resp.data if quiz_resp.data else []
 
-    1. A short motivational line.
-    2. A helpful tip based on today's completed topics.
-    3. An insight based on their recent quiz performance.
+        if len(todays_topics)==0 and len(last_quizzes)==0:
+            return jsonify({"success":False})
 
-    User data:
-    - Streak: {streak} days
-    - Topics completed today: {todays_topics}
-    - Quiz history (latest 3):
-    """ + "\n".join(
-        [f"  - Score: {q.get('score', '?')*100}% | Time taken: {q.get('timeSpent', '?')} sec" for q in last_quizzes]
-    ) + """
+        prompt = f"""
+        You are a supportive and intelligent learning coach. A user is using a daily part-time learning app. Based on their progress and recent activity, generate:
 
-    Respond as an array string:
+        1. A short motivational line.
+        2. A helpful tip based on today's completed topics.
+        3. An insight based on their recent quiz performance.
 
-    [Motivation,Tip,Insight]
-    """ 
+        User data:
+        - Streak: {streak} days
+        - Topics completed today: {todays_topics}
+        - Quiz history (latest 3):
+        """ + "\n".join(
+            [f"  - Score: {q.get('score', '?')*100}% | Time taken: {q.get('timeSpent', '?')} sec" for q in last_quizzes]
+        ) + """
 
-    ans = Bard().get_answer(prompt).get('content')
-    clean_ans = ans.strip('`json').strip('`').strip()
+        Respond as an array string:
 
-    parsed_response = json.loads(clean_ans)
-    motivation = parsed_response[0]
-    tip = parsed_response[1]
-    insight = parsed_response[2]
+        [Motivation,Tip,Insight]
+        """ 
 
-    data = {
-        "motivation": motivation,
-        "tip": tip,
-        "insight": insight
-    }
+        ans = Bard().get_answer(prompt).get('content')
+        clean_ans = ans.strip('`json').strip('`').strip()
 
-    return jsonify({"success":True,"data": data})
+        parsed_response = json.loads(clean_ans)
+        motivation = parsed_response[0]
+        tip = parsed_response[1]
+        insight = parsed_response[2]
 
+        data = {
+            "motivation": motivation,
+            "tip": tip,
+            "insight": insight
+        }
+
+        return jsonify({"success":True,"data": data})
+    except Exception as e:
+        print("Error")
 
 
 @app.route('/explain-topic', methods=['POST'])
@@ -380,6 +412,7 @@ def explain_topic():
 
 
 @app.route('/generate-curriculum', methods=['POST'])
+@token_required
 def gen_curr():
     data = request.get_json()
     goal = data.get('goal', '')
