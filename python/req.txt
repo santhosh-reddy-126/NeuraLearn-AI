@@ -5,6 +5,7 @@ PyJWT
 joblib
 numpy
 flask-cors
+scikit-learn
 requests
 gunicorn
 git+https://github.com/dsdanielpark/Bard-API.git
