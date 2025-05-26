@@ -205,7 +205,6 @@ def ask_ai():
     data = request.get_json()
     question = data.get('question', '')
     user_id = data.get('user_id','')
-    print(BARD_KEY)
     ans = Bard(token=BARD_KEY).get_answer(basic_query+"/n/n"+question).get('content')
     ans = re.sub(r'[*_#`>-]', '', ans)           
     ans = re.sub(r'\n+', ' ', ans)               
@@ -362,7 +361,7 @@ def user_dashboard_data():
 
 
 
-        ans = Bard().get_answer(prompt).get('content')
+        ans = Bard(token=BARD_KEY).get_answer(prompt).get('content')
         match = re.search(r"\[.*\]", ans, re.DOTALL)
         if not match:
             raise ValueError("Could not extract a valid list from the AI response.")
