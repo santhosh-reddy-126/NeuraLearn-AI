@@ -77,8 +77,10 @@ git clone https://github.com/santhosh-reddy-126/NeuraLearn-AI.git
 
 ### Frontend Setup
 #### Step 1: Create a .env file inside client folder
+```bard
 VITE_BACKEND_URL= "your backend url"
 VITE_PYTHON_URL = "your python url"
+```
 
 #### Step 2: Execute these commands
 ``` bash
@@ -92,11 +94,13 @@ npm run dev
 ### Backend Setup
 ##### Open a new terminal
 #### Step 3: Create a .env file inside server folder
+```bard
 PORT="port"
 SUPA_URL="your_supabase url"
 SUPA_KEY="your_supabase key"
 JWT_SECRET="jwt secret"
 CLIENT_URL="client url"
+```
 
 #### Step 4: Execute these commands
 ``` bash
@@ -110,18 +114,20 @@ node server.js
 ##### Open a new terminal
 #### Step 5: Create a .env file inside python folder
 
+```bash
 SUPA_URL="your_supabase url"
 SUPA_KEY="your_supabase key"
 JWT_SECRET="jwt secret"
 CLIENT_URL="client url"
-BARD_API_KEY="__Secure-1PSID"
-###### From application tab, select cookies on bard site and get __Secure-1PSID value
+BARD_API_KEY="__Secure-1PSID" 
+```
+
+#### From application tab on chrome dev tools, select cookies on bard site and get __Secure-1PSID value
 
 #### Step 5: Execute these commands
 ``` bash
 pip install -r req.txt
 python app.py
-
 ```
 
 
