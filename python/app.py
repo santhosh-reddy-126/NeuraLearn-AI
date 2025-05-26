@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 from flask import Flask, jsonify, request
 from supabase import create_client, Client
 import joblib
@@ -8,7 +12,6 @@ from flask_cors import CORS
 from datetime import datetime
 
 from bardapi import Bard
-import os
 import re,json,requests
 import time
 
@@ -109,20 +112,20 @@ def getInfo(study_time,quiz_score,quiz_time):
     return get_cluster_feedback(my_cluster[0])
 
 model = joblib.load("model.pkl")
-SUPABASE_URL = "https://yaaanfgcidbukyosgvys.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhYWFuZmdjaWRidWt5b3NndnlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyOTI3NDcsImV4cCI6MjA2Mjg2ODc0N30.NB3187950H3OSmeIArBg4qLLHk8t1k-8CSzd5LxOXOY"
-
+SUPABASE_URL = os.getenv("SUPA_URL")
+SUPABASE_KEY = os.getenv("SUPA_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
-Mistral_api_key = "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"
-os.environ["_BARD_API_KEY"]="g.a000vAhY6vLMzSpgiKBt3_LQApd5o0A2FPT0NTvExDkAiDMEtJUbqutl_z_egHjVf20_dD2ETAACgYKAWASAQASFQHGX2Mi9vzzgYxDjcl-BU7_ncM-PRoVAUF8yKpyro2SrSnHsAoOdI4kF6p70076"
+os.environ["_BARD_API_KEY"]=os.getenv("BARD_API_KEY")
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, resources={
+    r"/*": {"origins": os.getenv("CLIENT_URL","http://localhost:5173")}
+})
 
 basic_query="if i just give any topic to explain , Give explanation in small with one example and explain how that example matches the real defination or working.if its not just a topic to explain,Explain as your wish but in short only"
 
-SECRET_KEY = os.getenv("SECRET_KEY", "neuralearn_secret_key")
+SECRET_KEY = os.getenv("JWT_SECRET", "neuralearn_secret_key")
 
 from functools import wraps
 
