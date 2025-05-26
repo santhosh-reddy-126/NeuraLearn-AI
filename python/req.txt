@@ -6,4 +6,5 @@ joblib
 numpy
 flask-cors
 requests
+gunicorn
 git+https://github.com/dsdanielpark/Bard-API.git
