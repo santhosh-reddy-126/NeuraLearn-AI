@@ -1,0 +1,9 @@
+Flask
+python-dotenv
+supabase
+PyJWT
+joblib
+numpy
+flask-cors
+requests
+git+https://github.com/dsdanielpark/Bard-API.git
