@@ -117,7 +117,8 @@ SUPABASE_KEY = os.getenv("SUPA_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
-os.environ["_BARD_API_KEY"]=os.getenv("BARD_API_KEY")
+#os.environ["_BARD_API_KEY"]=os.getenv("BARD_API_KEY")
+BARD_KEY = os.getenv("BARD_API_KEY")
 app = Flask(__name__)
 CORS(app, resources={
     r"/*": {"origins": os.getenv("CLIENT_URL","http://localhost:5173")}
@@ -205,7 +206,7 @@ def ask_ai():
     question = data.get('question', '')
     user_id = data.get('user_id','')
     
-    ans = Bard().get_answer(basic_query+"/n/n"+question).get('content')
+    ans = Bard(token=BARD_KEY).get_answer(basic_query+"/n/n"+question).get('content')
     ans = re.sub(r'[*_#`>-]', '', ans)           
     ans = re.sub(r'\n+', ' ', ans)               
     ans = re.sub(r'\s{2,}', ' ', ans)   
