@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import "./Dashboard.css";
-import { backend, checkToken, python } from "../../../data";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { resolvePath, useNavigate } from "react-router-dom";
 import BarChartComponent from "../../Components/Charts/BarChartComponent";
 import AskAIChat from "../../Components/AskAIChat/AskAIChat";
 import DonutChart from "../../Components/Charts/DonutChart";
-import Loading from "../../Components/Loading/Loading"; 
+import Loading from "../../Components/Loading/Loading";
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user')) || {};
@@ -16,13 +15,15 @@ const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const nav = useNavigate();
   const [curr, allcurr] = useState([]);
+  const backend = import.meta.env.VITE_BACKEND_URL;
+  const python = import.meta.env.VITE_PYTHON_URL;
   const [bar, setbar] = useState({});
   const [donut, Setdonut] = useState({
     completed: 0,
     total: 0
   });
   const [classificationMsg, setClassificationMsg] = useState("");
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   const getUserId = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -108,16 +109,12 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    if (checkToken()) {
-      const fetchAll = async () => {
-        setLoading(true);
-        await Promise.all([getCurriculum(), classifyUser()]);
-        setLoading(false);
-      };
-      fetchAll();
-    }else{
-      nav("/login");
-    }
+    const fetchAll = async () => {
+      setLoading(true);
+      await Promise.all([getCurriculum(), classifyUser()]);
+      setLoading(false);
+    };
+    fetchAll();
 
   }, []);
 
@@ -135,14 +132,14 @@ const Dashboard = () => {
   return (
     <div>
       <Navbar />
-      <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem"}}>
+      <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
         <h1 className="dashboard-title">Welcome, {name}!</h1>
-        {classificationMsg && classificationMsg.length>0 && (
+        {classificationMsg && classificationMsg.length > 0 && (
           <div className="classification-message">
             {classificationMsg}
           </div>
         )}
-        {curr.length>0 ? <div className="curriculums">
+        {curr.length > 0 ? <div className="curriculums">
           {curr
             .filter(item => {
               const now = new Date();
@@ -157,19 +154,19 @@ const Dashboard = () => {
                 </h4>
               </div>
             ))}
-        </div>:""}
-        {donut.total>0 || bar.length>0 ?  <div className="dashboard-charts-row">
-          {donut.total>0 ? <div className="dashboard-chart-card">
+        </div> : ""}
+        {donut.total > 0 || bar.length > 0 ? <div className="dashboard-charts-row">
+          {donut.total > 0 ? <div className="dashboard-chart-card">
             <DonutChart completed={donut.completed > donut.total ? donut.total : donut.completed} total={donut.total} title={"Today Progress"} ct={"Completed"} rt={"Remaining"} />
           </div> : ""}
-          {bar.length>0 ? 
-          
-          <div className="dashboard-chart-card">
-            <BarChartComponent data={bar} title={"Last 7 Days Progress"} col={"date"} row={"count_of_completed"} rowname={"Completed"} />
-          </div> : ""}
+          {bar.length > 0 ?
+
+            <div className="dashboard-chart-card">
+              <BarChartComponent data={bar} title={"Last 7 Days Progress"} col={"date"} row={"count_of_completed"} rowname={"Completed"} />
+            </div> : ""}
         </div>
-      :""}
-      
+          : ""}
+
       </div>
 
       {users && users.length > 0 ? <div className="leaderboard-container">
@@ -195,6 +192,26 @@ const Dashboard = () => {
           </table>
         </div>
       </div> : ""}
+
+      <div class="daily-tasks">
+        <h3 class="tasks-heading">🎯 Daily XP Tasks</h3>
+
+        <div class="task-item completed">
+          <span class="task-title">✅ Read your first topic of the day</span>
+          <span class="task-reward">+10 XP</span>
+        </div>
+
+        <div class="task-item">
+          <span class="task-title">📊 Score more than 60% in quiz</span>
+          <span class="task-reward">+20 XP</span>
+        </div>
+
+        <div class="task-item">
+          <span class="task-title">🏆 Score 100% in quiz</span>
+          <span class="task-reward">+30 XP</span>
+        </div>
+      </div>
+
       <AskAIChat />
     </div>
   );

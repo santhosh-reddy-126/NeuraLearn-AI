@@ -135,6 +135,8 @@
   transition: background 0.2s, box-shadow 0.2s;
   box-shadow: 0 2px 12px #3F8EFC22;
   letter-spacing: 0.02em;
+  margin-right: 12px;
+  margin-top: 10px;
 }
 
 .test-btn:active {

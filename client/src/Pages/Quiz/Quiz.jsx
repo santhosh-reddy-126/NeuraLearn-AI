@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import axios from "axios";
-import { backend } from "../../../data";
 import DonutChart from "../../Components/Charts/DonutChart";
 import BarChartComponent from "../../Components/Charts/BarChartComponent";
 import Loading from "../../Components/Loading/Loading";
@@ -12,6 +11,7 @@ const Quiz = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [hist, sethist] = useState([]);
   const [loading, setLoading] = useState(true);
+  const backend = import.meta.env.VITE_BACKEND_URL;
   const [openQuizIndex, setOpenQuizIndex] = useState(null);
   function convertObjectToArray(obj) {
     return Object.entries(obj).map(([key, value]) => ({
@@ -38,7 +38,6 @@ const Quiz = () => {
         });
         if (resp.data.success) {
           setQuizzes(resp.data.data);
-          console.log(resp.data)
           sethist(resp.data.analytics);
         }
       } catch (e) {
@@ -89,7 +88,7 @@ const Quiz = () => {
                   >
                     <td>
                       <span className="quiz-expand-icon">
-                        {openQuizIndex === idx ? "▶" : "▶"}
+                        ▶
                       </span>
                       {new Date(quiz.created_at).toLocaleDateString()}
                     </td>

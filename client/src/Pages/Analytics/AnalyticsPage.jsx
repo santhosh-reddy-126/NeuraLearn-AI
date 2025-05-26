@@ -1,13 +1,15 @@
-import React, { useEffect, useState,useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './AnalyticsPage.css';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useParams } from "react-router-dom";
 import LineChartComponent from "../../Components/Charts/LineChartComponent";
-import { backend, python } from '../../../data';
 import Navbar from '../../Components/Navbar/Navbar';
 import { isArray } from 'chart.js/helpers';
 import StatCard from '../../Components/Charts/StatCard';
+
+const backend = import.meta.env.VITE_BACKEND_URL;
+const python = import.meta.env.VITE_PYTHON_URL;
 
 const gradeToScore = {
   A: 10,
@@ -88,13 +90,11 @@ const ReportCard = ({ data, finalGrade }) => {
           const { grade, tips } = row[topic];
           return (
             <div className="report-row grid-row" key={index}>
-              <div>{topic}</div>
-              <div>
-                <span className={`grade-badge grade-${grade.toLowerCase()}`}>
-                  {grade}
-                </span>
+              <div data-label="Topic">{topic}</div>
+              <div data-label="Grade">
+                <span className={`grade-badge grade-${grade.toLowerCase()}`}>{grade}</span>
               </div>
-              <div>
+              <div data-label="Tips">
                 <ul className="tips-list">
                   {tips.map((tip, tipIndex) => (
                     <li key={tipIndex}>
@@ -105,6 +105,7 @@ const ReportCard = ({ data, finalGrade }) => {
                 </ul>
               </div>
             </div>
+
           );
         })}
 
@@ -153,7 +154,6 @@ const AnalyticsPage = () => {
 
   // Fetch Weakness Data
   const fetchWeakness = async () => {
-    console.log("Hello")
     try {
       const response = await axios.post(`${python}weakness`, {
         user_id: getUserId(),

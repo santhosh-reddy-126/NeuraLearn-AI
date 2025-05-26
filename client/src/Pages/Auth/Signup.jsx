@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import './Login.css'
 import axios from "axios"
-import {backend} from '../../../data'
 import { toast } from 'react-toastify'
+import Navbar from '../../Components/Navbar/Navbar'
 import { useNavigate } from 'react-router-dom'
 
 const avatars = [
@@ -19,6 +19,7 @@ function Signup() {
   const [password, setPassword] = useState('')
   const [avatar, setAvatar] = useState(avatars[0])
   const [error, setError] = useState('')
+  const backend = import.meta.env.VITE_BACKEND_URL;
   const nav = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,7 +36,7 @@ function Signup() {
         })
         if (resp.data.success) {
           toast.success(resp.data.message);
-          nav("/login");
+          nav("/");
         } else {
           toast.error(resp.data.message);
         }
@@ -50,6 +51,8 @@ function Signup() {
   }
 
   return (
+    <div>
+      <Navbar />
     <div className="login-bg">
       <div className="login-card">
         <div className="login-logo-text">
@@ -123,11 +126,18 @@ function Signup() {
         </form>
         <div className="login-footer">
           Already have an account?{' '}
-          <a href="/login" className="login-link">
+          <a href="/" className="login-link">
             Sign in
           </a>
         </div>
       </div>
+    </div>
+    {/* Footer outside the login-card container */}
+        <div className="contact-footer">
+          <p>Email: <a href="mailto:your.email@example.com">your.email@example.com</a></p>
+          <p>Instagram: <a href="https://instagram.com/yourprofile" target="_blank" rel="noopener noreferrer">@yourprofile</a></p>
+          <p>Contact for bug reporting</p>
+        </div>
     </div>
   )
 }

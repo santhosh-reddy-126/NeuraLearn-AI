@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./Curriculum.css";
-import { backend, python } from "../../../data";
 import { toast } from "react-toastify";
 import Loading from "../../Components/Loading/Loading";
 import Navbar from "../../Components/Navbar/Navbar";
@@ -13,6 +12,8 @@ import cert from "../../assets/certificate.png"
 
 const Curriculum = () => {
   const [goal, setGoal] = useState("");
+  const backend = import.meta.env.VITE_BACKEND_URL;
+  const python = import.meta.env.VITE_PYTHON_URL;
   const navigate = useNavigate();
   const [duration, setDuration] = useState("");
   const [curriculum, setCurriculum] = useState(null);
@@ -187,7 +188,6 @@ const Curriculum = () => {
           }
         });
       if (resp.data.success) {
-        console.log(resp.data)
         return resp.data.data; 
       } else {
         return {};
@@ -320,7 +320,7 @@ const Curriculum = () => {
                         </div>
 
                         <div className="btns">
-                          {item.completed_count === item.count && item.quiz_count>0 && (
+                          {item.completed_count === item.count && item.quiz_count>=item.duration && (
                             <img
                               src={cert}
                               onClick={() => navigate(`/report/${item.id}`)}

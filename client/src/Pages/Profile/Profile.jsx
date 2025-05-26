@@ -1,14 +1,13 @@
 import React from 'react'
 import Navbar from '../../Components/Navbar/Navbar'
 import './Profile.css'
-import { backend } from '../../../data'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const Profile = () => {
   const user = JSON.parse(localStorage.getItem('user')) || {}
   const [badges, setBadge] = useState([]);
-
+  const backend = import.meta.env.VITE_BACKEND_URL;
   const [xp, setXp] = useState(0)
 
   useEffect(() => {

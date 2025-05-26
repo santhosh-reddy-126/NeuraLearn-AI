@@ -1,10 +1,12 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { Router } from 'express'
 import { createClient } from '@supabase/supabase-js'
 import verifyToken from "../Token.js"
 
 
-const supabaseUrl = "https://yaaanfgcidbukyosgvys.supabase.co"
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhYWFuZmdjaWRidWt5b3NndnlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyOTI3NDcsImV4cCI6MjA2Mjg2ODc0N30.NB3187950H3OSmeIArBg4qLLHk8t1k-8CSzd5LxOXOY"
+const supabaseUrl = process.env.SUPA_URL
+const supabaseKey = process.env.SUPA_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 const routerc = Router()
 
@@ -290,7 +292,7 @@ routerc.post("/analytics", async (req, res) => {
 
           if (error) {
 
-               return res.json({ success: false, message: "Unable to delete Curriculum!" })
+               return res.json({ success: false, message: "Unable to get Analytics!" })
           }
 
           let main_data = data;
@@ -300,7 +302,7 @@ routerc.post("/analytics", async (req, res) => {
 
           if (error) {
                console.log(error)
-               return res.json({ success: false, message: "Unable to delete Curriculum!" })
+               return res.json({ success: false, message: "Unable to get Analytics!" })
           }
           let linedata = data;
           ({ data, error } = await supabase
@@ -308,12 +310,12 @@ routerc.post("/analytics", async (req, res) => {
 
           if (error) {
                console.log(error)
-               return res.json({ success: false, message: "Unable to delete Curriculum!" })
+               return res.json({ success: false, message: "Unable to get Analytics!" })
           }
           res.json({ success: true, data: main_data, linedata: linedata, read: data })
 
      } catch (e) {
-          res.json({ success: false, message: "Unable to delete Curriculum!" })
+          res.json({ success: false, message: "Unable to get Analytics!" })
      }
 
 })

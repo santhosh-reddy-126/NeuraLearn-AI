@@ -1,10 +1,13 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { Router } from 'express'
 import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
-const supabaseUrl = "https://yaaanfgcidbukyosgvys.supabase.co"
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhYWFuZmdjaWRidWt5b3NndnlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyOTI3NDcsImV4cCI6MjA2Mjg2ODc0N30.NB3187950H3OSmeIArBg4qLLHk8t1k-8CSzd5LxOXOY"
+const supabaseUrl = process.env.SUPA_URL
+const supabaseKey = process.env.SUPA_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 const router = Router()
 
@@ -45,7 +48,7 @@ router.post('/login', async (req, res) => {
           const token = jwt.sign(
             { id: exist.data.id, email: exist.data.email, name: exist.data.name },
             JWT_SECRET,
-            { expiresIn: '12h' }
+            { expiresIn: '6h'}
           );
 
           res.json({

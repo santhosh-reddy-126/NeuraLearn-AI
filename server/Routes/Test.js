@@ -1,8 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { Router } from 'express'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = "https://yaaanfgcidbukyosgvys.supabase.co"
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhYWFuZmdjaWRidWt5b3NndnlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyOTI3NDcsImV4cCI6MjA2Mjg2ODc0N30.NB3187950H3OSmeIArBg4qLLHk8t1k-8CSzd5LxOXOY"
+const supabaseUrl = process.env.SUPA_URL
+const supabaseKey = process.env.SUPA_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 const test = Router()
 

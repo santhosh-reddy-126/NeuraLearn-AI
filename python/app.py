@@ -168,7 +168,6 @@ def generate_quiz_by_topics(topics, questions_per_topic=2):
 
     try:
         response = Bard().get_answer(prompt).get("content")
-        print(response)
         if response:
             temp=re.sub(r'^```json\s*|```$', '', response).strip()
             data = json.loads(temp)
@@ -304,7 +303,6 @@ def weakness():
     after_level = after // 100
 
     passed = after_level if after_level > before_level else 0
-    print(passed)
 
 
 
@@ -319,17 +317,21 @@ def user_dashboard_data():
         user_email = data.get('user_email')  
         user_id = data.get('user_id')
         curr_id = data.get('curr_id')
+
         streak_resp = supabase.from_("curriculum").select("streak").eq("id", curr_id).eq("email", user_email).single().execute()
         streak = streak_resp.data["streak"] if streak_resp.data else 0
 
         today = datetime.now().strftime('%Y-%m-%d')
         progress_resp = supabase.from_("daily_progress").select("*").eq("user_id", user_id).eq("curr_id", curr_id).eq("date", today).limit(1).execute()
-        todays_progress = progress_resp.data if progress_resp.data else {}
-    
-        todays_topics = todays_progress.get("completed", []) if todays_progress else []
+        todays_progress = progress_resp.data if progress_resp.data else []
+        todays_topics = todays_progress[0].get("completed", []) if len(todays_progress) > 0 else []
+
+
 
         quiz_resp = supabase.from_("quiz").select("*").eq("user_id", user_id).eq("curr_id", curr_id).order("created_at", desc=True).limit(3).execute()
         last_quizzes = quiz_resp.data if quiz_resp.data else []
+
+
 
         if len(todays_topics)==0 and len(last_quizzes)==0:
             return jsonify({"success":False})
@@ -354,8 +356,15 @@ def user_dashboard_data():
         [Motivation,Tip,Insight]
         """ 
 
+
+
         ans = Bard().get_answer(prompt).get('content')
-        clean_ans = ans.strip('`json').strip('`').strip()
+        match = re.search(r"\[.*\]", ans, re.DOTALL)
+        if not match:
+            raise ValueError("Could not extract a valid list from the AI response.")
+
+        clean_ans = match.group(0)
+
 
         parsed_response = json.loads(clean_ans)
         motivation = parsed_response[0]
@@ -370,13 +379,15 @@ def user_dashboard_data():
 
         return jsonify({"success":True,"data": data})
     except Exception as e:
-        print("Error")
+        print(e)
+        return jsonify({"success": False, "message": "Something went wrong!"}), 500
 
 
 @app.route('/explain-topic', methods=['POST'])
 def explain_topic():
     data = request.get_json()
     topic = data.get('topic', '')
+
     explain_prompt = (
         "You are an expert teacher. For any given topic from Math, Science, or Computer Science, explain it in simple language "
         "using the following JSON format only (no extra text), keeping the response strictly within 2400 characters: "
@@ -384,32 +395,37 @@ def explain_topic():
         "\"comp\" is an array listing key components; \"steps\" is an array of objects each with \"title\" and \"content\" describing step-by-step explanations; "
         "\"ex\" gives an example or application; \"form\" is an array of objects each with \"type\" (either \"formula\" or \"syntax\") and \"content\" describing formulas or code syntax; "
         "\"mistakes\" is an array listing common mistakes to avoid; \"summary\" is a 2–3 line summary or takeaway. Use simple language, analogies, and code snippets if helpful. "
-        "Also include one relevant YouTube video with title and URL, and one relevant article with title and URL in the response. make sure they are existing right now"
-        "Now explain the topic within 2400 characters:"
+        "Also include one relevant YouTube video with title and URL, and one relevant article with title and URL in the response. make sure they are existing right now."
+        "Respond with only valid JSON in a ```json block, no explanation or markdown. Now explain the topic within 2400 characters:"
     )
 
-         
-    ans = Bard().get_answer(explain_prompt+topic).get('content')
+    max_attempts = 6
+    last_raw = ""
+    for attempt in range(max_attempts):
+        try:
+            raw_ans = Bard().get_answer(explain_prompt + topic).get('content')
+            last_raw = raw_ans
 
-    match = re.search(r"```json\s*(.*?)\s*```", ans, re.DOTALL | re.IGNORECASE)
-    if match:
-        json_str = match.group(1).strip()
-        print("Extracted JSON string:")
-        print(json_str)
-    else:
-        print("No ```json block found, maybe ans is raw JSON or missing backticks.")
-        json_str = ans  # try using ans as raw JSON
+            match = re.search(r"```json\s*(.*?)\s*```", raw_ans, re.DOTALL | re.IGNORECASE)
+            json_str = match.group(1).strip() if match else raw_ans
 
-    try:
-        ans_json = json.loads(json_str)
-        return jsonify({"success": True, "answer": ans_json})
-    except json.JSONDecodeError as e:
-        return jsonify({"success": False, "message": f"JSON decode error: {str(e)}"})
+            ans_json = json.loads(json_str)
 
-    else:
+            required_keys = {"def", "imp", "comp", "steps", "ex", "form", "mistakes", "summary"}
+            if not required_keys.issubset(ans_json.keys()):
+                raise ValueError("Missing keys in JSON")
 
-        return jsonify({"success":False,"message": "Sorry! Unable to Generate Curriculum"})
+            return jsonify({"success": True, "answer": ans_json})
+        
+        except (json.JSONDecodeError, ValueError):
+            time.sleep(1)  # Wait a bit before retrying
+            continue
 
+    return jsonify({
+        "success": False,
+        "message": "Tried 6 times but could not generate valid JSON.",
+        "raw": last_raw
+    })
 
 @app.route('/generate-curriculum', methods=['POST'])
 @token_required
@@ -451,22 +467,38 @@ def gen_quiz():
     data = request.get_json()
     total, topics = int(data.get('total', 0)), data.get('topics', [])
 
-    if not topics or total != 15:
+    if not topics:
         return jsonify({"success": False, "message": "Invalid input"})
 
-    qpt = 5 
-    chunks = [topics[i:i + 2] for i in range(0, len(topics), 2)]
-    questions = []
+    qpt = 5  # Questions per topic
+    all_questions = []
 
-    for chunk in chunks:
-        res = generate_quiz_by_topics(chunk, qpt)
-        
-        if res:
-            try:
-                questions += res.get("questions", [])
-            except json.JSONDecodeError:
-                continue
-    return jsonify({"success": True, "data": {"questions": questions[:total]}} if questions else {"success": False, "message": "Unable to generate questions."})
+    for topic in topics:
+        topic_questions = []
+        attempts = 0
+
+        while len(topic_questions) < qpt and attempts < 7:
+            res = generate_quiz_by_topics([topic], qpt - len(topic_questions))
+
+            if res:
+                try:
+                    new_questions = res.get("questions", [])
+                    topic_questions.extend(new_questions)
+                except Exception as e:
+                    print(f"Error parsing questions for topic '{topic}': {e}")
+            attempts += 1
+
+        if len(topic_questions) < qpt:
+            print(f"Failed to generate enough questions for topic: {topic}")
+            continue  # Skip this topic if not enough questions
+
+        all_questions.extend(topic_questions)
+
+    if len(all_questions) < total:
+        return jsonify({"success": False, "message": "Unable to generate enough questions."})
+
+    return jsonify({"success": True, "data": {"questions": all_questions[:total]}})
+
 
 @app.route('/')
 def home():

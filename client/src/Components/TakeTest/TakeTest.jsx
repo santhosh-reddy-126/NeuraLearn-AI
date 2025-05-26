@@ -3,14 +3,16 @@ import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
 import BadgePopUp from "../Gamified/BadgePopUp";
 import axios from "axios";
-import { backend, python } from "../../../data";
 import "./TakeTest.css";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../Loading/Loading";
 
 const TakeTest = () => {
      const { id, day } = useParams();
+     const nav = useNavigate();
+     const backend = import.meta.env.VITE_BACKEND_URL;
+     const python = import.meta.env.VITE_PYTHON_URL;
      const [curr, setcurr] = useState([]);
      const [showBadge, setShowBadge] = useState(true);
      const [badge, setbadge] = useState(null);
@@ -29,37 +31,30 @@ const TakeTest = () => {
                     setcurr(resp.data.data);
                     const temp_data = resp.data.data[0];
                     let my_topics = [];
-                    let duration = 120; // default fallback
-
-                    if (day > 0) {
-                         const len = temp_data.curriculum[`Day ${day}`]?.Subtopics?.length || 1;
-                         duration = 5 * len * 60;
-                         my_topics = temp_data.curriculum[`Day ${day}`].Subtopics;
-                    } else {
-                         duration = 2 * (temp_data.count || 1) * 60;
-                         for (let i = 1; i <= Number(temp_data.duration); i++) {
-                              my_topics = [...my_topics, ...temp_data.curriculum[`Day ${i}`].Subtopics];
-                         }
-                    }
+                    let duration = 120;
+                    const len = temp_data.curriculum[`Day ${day}`]?.Subtopics?.length || 1;
+                    duration = 5 * len * 60;
+                    my_topics = temp_data.curriculum[`Day ${day}`].Subtopics;
                     setTestDuration(duration);
-                    generate_quiz(my_topics, duration); // pass duration as argument
+                    generate_quiz(5 * len,my_topics, duration); // pass duration as argument
                }
           } catch (e) {
                console.log(e);
           }
      };
 
-     const generate_quiz = async (topics, duration) => {
+     const generate_quiz = async (total,topics, duration) => {
           try {
                const resp = await axios.post(python + "generate-quiz", {
-                    total: day > 0 ? 15 : 60,
+                    total: total,
                     topics
                });
                if (!resp.data.success) {
-                    toast.success("Unable to create Quiz!");
+                    toast.error(resp.data.message);
+                    nav(`/study-curriculum/${id}`);
                } else {
                     setquestions(resp.data.data.questions);
-                    setTimeLeft(duration); // use the duration passed as argument
+                    setTimeLeft(duration); 
                }
           } catch (e) {
                console.log(e);
@@ -183,7 +178,6 @@ const TakeTest = () => {
           } catch (e) {
                console.log(e);
           }
-          console.log("Test completed! Score:", score);
      };
 
      if (!questions || questions.length === 0) {
@@ -281,7 +275,7 @@ const TakeTest = () => {
                                         <button className="test-btn" onClick={handleRetake}>
                                              Retake Test
                                         </button>
-                                        <button className="test-btn" style={{ marginLeft: 12 }} onClick={() => setReviewMode(true)}>
+                                        <button className="test-btn" onClick={() => setReviewMode(true)}>
                                              Review Answers
                                         </button>
                                         {showBadge && badge!=null ?

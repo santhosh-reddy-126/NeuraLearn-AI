@@ -1,20 +1,60 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import * as jwt_decode from 'jwt-decode'
+import { useEffect, useState } from 'react'
+
 import Login from './Pages/Auth/Login'
 import Signup from './Pages/Auth/Signup'
-import { ToastContainer } from 'react-toastify'
 import Dashboard from './Pages/Dashboard/Dashboard'
 import Profile from './Pages/Profile/Profile'
 import Curriculum from "./Pages/Curriculum/Curriculum"
 import StudyCurriculum from './Pages/StudyCurriculum/StudyCurriculum'
 import TakeTest from './Components/TakeTest/TakeTest'
 import Quiz from './Pages/Quiz/Quiz'
+import NotFound from './Components/NotFound/NotFound'
 import AnalyticsPage from './Pages/Analytics/AnalyticsPage'
-function App() {
+
+function AppWrapper() {
+  const navigate = useNavigate()
+  const [token, setToken] = useState(localStorage.getItem('token'))
+
+  const logout = () => {
+    setToken(null)
+    localStorage.removeItem('token')
+    navigate('/')
+  }
+
+  useEffect(() => {
+    if (!token){
+      navigate('/')
+      return
+    } 
+
+    try {
+      const decoded = jwt_decode(token)
+      const exp = decoded.exp * 1000 // convert to milliseconds
+      const now = Date.now()
+
+      if (exp < now) {
+        logout()
+        return
+      }
+
+      const timeoutId = setTimeout(() => {
+        logout()
+      }, exp - now)
+
+      return () => clearTimeout(timeoutId)
+    } catch {
+      logout()
+    }
+  }, [token])
+
   return (
-    <Router>
+    <>
       <ToastContainer />
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login onLogin={(t) => { setToken(t); localStorage.setItem('token', t) }} />} />
         <Route path="/register" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
@@ -23,11 +63,16 @@ function App() {
         <Route path="/test/:id/:day" element={<TakeTest />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/report/:id" element={<AnalyticsPage />} />
-
-
+        <Route path="*" element={<NotFound />} />
       </Routes>
-    </Router>
+    </>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <Router>
+      <AppWrapper />
+    </Router>
+  )
+}

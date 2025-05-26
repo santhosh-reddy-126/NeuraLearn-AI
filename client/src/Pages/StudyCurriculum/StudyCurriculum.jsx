@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import "./StudyCurriculum.css";
-import { backend, python } from "../../../data.jsx";
 import BadgePopUp from "../../Components/Gamified/BadgePopUp.jsx"
 import left from "../../assets/left.png";
 import right from "../../assets/right.png";
@@ -15,6 +14,8 @@ import { toast } from "react-toastify";
 const StudyCurriculum = () => {
   const [data, setData] = useState({});
   const [prog, setProg] = useState({});
+  const backend = import.meta.env.VITE_BACKEND_URL;
+  const python = import.meta.env.VITE_PYTHON_URL;
   const { id } = useParams();
   const nav = useNavigate();
   const [showBadge, setShowBadge] = useState(true);
@@ -47,7 +48,6 @@ const StudyCurriculum = () => {
       });
       if (resp.data.success) {
         setbadge(resp.data.myBadge);
-        console.log(resp.data);
         setOpenTopic(null);
         getData();
         toast.success(`${topic} Marked as Completed`);
@@ -72,11 +72,9 @@ const StudyCurriculum = () => {
       const resp = await axios.post(backend + "api/curriculum/getcurriculumbyid", { id });
       if (resp.data.success) {
         setData(resp.data.data[0]);
-        setProg(resp.data.prog);
-        console.log(resp.data.prog);
+        setProg(resp.data.prog);// data from daily progress for this curriculum
         const diff = Math.floor((new Date() - new Date(resp.data.data[0].startdate)) / (1000 * 60 * 60 * 24));
         if (diff >= 0) setDay(1 + diff);
-        console.log(new Date());
       }
     } catch (e) {
       console.log(e);
@@ -129,7 +127,6 @@ const StudyCurriculum = () => {
         const resp = await axios.post(python + "explain-topic", { topic });
         if (resp.data.success) {
           val = resp.data.answer;
-          console.log(val);
         }
       } catch (e) {
         console.log(e);

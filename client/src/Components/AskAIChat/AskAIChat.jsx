@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { python } from "../../../data";
 import { toast } from "react-toastify";
 import "./AskAIChat.css";
 
@@ -7,6 +6,7 @@ const AskAIChat = () => {
   const [showChat, setShowChat] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const python = import.meta.env.VITE_PYTHON_URL;
 
   const handleSend = async (e) => {
     e.preventDefault();

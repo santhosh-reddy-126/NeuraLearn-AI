@@ -1,0 +1,42 @@
+.notfound-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #3EE4B2 0%, #3F8EFC 100%);
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+.notfound-title {
+  font-size: 8rem;
+  margin: 0;
+  font-weight: 900;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+}
+
+.notfound-message {
+  font-size: 1.5rem;
+  margin: 10px 0 30px 0;
+  font-weight: 500;
+}
+
+.notfound-homebtn {
+  background-color: white;
+  color: #3F8EFC;
+  font-weight: 600;
+  padding: 12px 30px;
+  border-radius: 30px;
+  text-decoration: none;
+  box-shadow: 0 6px 10px rgba(63, 142, 252, 0.3);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.notfound-homebtn:hover {
+  background-color: #3F8EFC;
+  color: white;
+  box-shadow: 0 8px 14px rgba(62, 228, 178, 0.6);
+}

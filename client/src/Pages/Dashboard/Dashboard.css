@@ -457,3 +457,51 @@
   font-size: 1.1rem;
   letter-spacing: 0.2px;
 }
+
+
+.daily-tasks {
+  background: linear-gradient(to right, #3EE4B2, #3F8EFC);
+  padding: 1.5rem;
+  border-radius: 16px;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+  width: 60%;
+  margin: 2rem auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.tasks-heading {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.task-item {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.task-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.task-title {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.task-reward {
+  background-color: white;
+  color: #3F8EFC;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}

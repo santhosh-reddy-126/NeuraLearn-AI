@@ -20,9 +20,10 @@
   min-height: 100vh;
   background: var(--background);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 0; /* Add vertical padding for breathing room */
+  flex-direction: column;  /* stack children vertically */
+  align-items: center;     /* center horizontally */
+  justify-content: center; /* center vertically */
+  padding: 2rem 0;
 }
 
 .login-card {
@@ -156,4 +157,47 @@
 .login-link:hover {
   text-decoration: underline;
 }
+
+
+.logo-emoji {
+  font-size: 48px;
+  vertical-align: middle;
+}
+
+.contact-footer {
+  margin-top: 40px;
+  text-align: center;
+  color: #444; /* darker text for readability */
+  font-size: 16px; /* larger font size */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  background-color: #f0f4f8; /* light subtle background */
+  padding: 20px 10px; /* padding around the content */
+  border-radius: 12px; /* rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* subtle shadow */
+  max-width: 370px; /* match login card width */
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.contact-footer p {
+  margin: 8px 0;
+}
+
+.contact-footer a {
+  color: #3EE4B2; /* primary teal */
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.contact-footer a:hover {
+  color: #3F8EFC; /* secondary blue */
+  text-decoration: underline;
+}
+
+
+
+
 

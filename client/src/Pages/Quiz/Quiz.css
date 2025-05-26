@@ -1,11 +1,15 @@
 .quiz-container {
   max-width: 1200px;
+  width: 100%; /* ✅ Add this */
   margin: 2.5rem auto;
   background: #fafdff;
   border-radius: 1.5rem;
   box-shadow: 0 8px 32px #3F8EFC22;
   padding: 2.5rem 2rem;
+  overflow-x: auto; /* ✅ Optional: allows scrolling if needed */
+  box-sizing: border-box; /* ✅ Ensures padding doesn't cause overflow */
 }
+
 
 .quiz-table {
   width: 100%;
