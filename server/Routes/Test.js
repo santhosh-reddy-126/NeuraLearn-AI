@@ -73,19 +73,19 @@ test.post("/updateresult", async (req, res) => {
 
 
 
-               if (stats[0].quiz_taken >= 10 && !stats[0].badges.includes("Quiz Marathoner")) {
+               if (stats[0].quiz_taken >= 10 && stats[0].badges && !stats[0].badges.includes("Quiz Marathoner")) {
                     myBadge = {
                          text: "Quiz Marathoner",
                          emoji: "🏃‍♂️📊",
                          description: "Completed 10 quizzes – unstoppable!"
                     };
-               } else if (stats[0].quiz_taken >= 5 && !stats[0].badges.includes("Quiz Wiz")) {
+               } else if (stats[0].quiz_taken >= 5 && stats[0].badges && !stats[0].badges.includes("Quiz Wiz")) {
                     myBadge = {
                          text: "Quiz Wiz",
                          emoji: "🧠",
                          description: "Completed 5 quizzes – sharp mind!"
                     };
-               } else if (stats[0].quiz_taken >= 1 && !stats[0].badges.includes("First Quiz")) {
+               } else if (stats[0].quiz_taken >= 1 && stats[0].badges && !stats[0].badges.includes("First Quiz")) {
                     myBadge = {
                          text: "First Quiz",
                          emoji: "🥇",
