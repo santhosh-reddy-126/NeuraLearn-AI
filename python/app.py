@@ -14,8 +14,19 @@ from datetime import datetime
 from bardapi import Bard
 import re,json,requests
 import time
+import requests
 
-
+def get_answer_from_bard(prompt):
+    url = "https://bard-w2q9.onrender.com/ask"
+    payload = {"question": prompt}
+    
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status() 
+        data = response.json()
+        return data.get("answer", "No answer returned.")
+    except Exception as e:
+        return f"Error: {e}"
 
 def get_cluster_feedback(cluster_number: int) -> dict:
     tips_data = {
@@ -170,7 +181,7 @@ def generate_quiz_by_topics(topics, questions_per_topic=2):
     
 
     try:
-        response = Bard().get_answer(prompt).get("content")
+        response = get_answer_from_bard(prompt)
         if response:
             temp=re.sub(r'^```json\s*|```$', '', response).strip()
             data = json.loads(temp)
@@ -204,7 +215,7 @@ def ask_ai():
     data = request.get_json()
     question = data.get('question', '')
     user_id = data.get('user_id','')
-    ans = Bard().get_answer(basic_query+"/n/n"+question).get('content')
+    ans = get_answer_from_bard(basic_query+"/n/n"+question)
     ans = re.sub(r'[*_#`>-]', '', ans)           
     ans = re.sub(r'\n+', ' ', ans)               
     ans = re.sub(r'\s{2,}', ' ', ans)   
@@ -360,7 +371,7 @@ def user_dashboard_data():
 
 
 
-        ans = Bard().get_answer(prompt).get('content')
+        ans = get_answer_from_bard(prompt)
         match = re.search(r"\[.*\]", ans, re.DOTALL)
         if not match:
             raise ValueError("Could not extract a valid list from the AI response.")
@@ -405,7 +416,7 @@ def explain_topic():
     last_raw = ""
     for attempt in range(max_attempts):
         try:
-            raw_ans = Bard().get_answer(explain_prompt + topic).get('content')
+            raw_ans = get_answer_from_bard(explain_prompt + topic)
             last_raw = raw_ans
 
             match = re.search(r"```json\s*(.*?)\s*```", raw_ans, re.DOTALL | re.IGNORECASE)
@@ -445,7 +456,7 @@ def gen_curr():
     )
 
     try:
-        response = Bard().get_answer(prompt).get('content')
+        response = get_answer_from_bard(prompt)
 
         if response:
             match = re.search(r"```json(.*?)```", response, re.DOTALL)
