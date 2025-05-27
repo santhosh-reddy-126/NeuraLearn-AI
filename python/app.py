@@ -204,7 +204,7 @@ def ask_ai():
     data = request.get_json()
     question = data.get('question', '')
     user_id = data.get('user_id','')
-    ans = Bard(token=BARD_KEY).get_answer(basic_query+"/n/n"+question).get('content')
+    ans = Bard().get_answer(basic_query+"/n/n"+question).get('content')
     ans = re.sub(r'[*_#`>-]', '', ans)           
     ans = re.sub(r'\n+', ' ', ans)               
     ans = re.sub(r'\s{2,}', ' ', ans)   
