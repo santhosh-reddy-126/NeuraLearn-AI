@@ -53,6 +53,7 @@ const TakeTest = () => {
                     toast.error(resp.data.message);
                     nav(`/study-curriculum/${id}`);
                } else {
+                    toast.info(resp.data.message);
                     setquestions(resp.data.data.questions);
                     setTimeLeft(duration); 
                }

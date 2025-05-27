@@ -507,10 +507,13 @@ def gen_quiz():
 
         all_questions.extend(topic_questions)
 
-    if len(all_questions) < total:
-        return jsonify({"success": False, "message": "Unable to generate enough questions."})
 
-    return jsonify({"success": True, "data": {"questions": all_questions[:total]}})
+
+    return jsonify({
+        "success": True,
+        "data": {"questions": all_questions[:total]},
+        "message": "Unable to generate enough questions. Try Again" if len(all_questions) < total else "Generated full quiz!"
+    })
 
 
 @app.route('/')
