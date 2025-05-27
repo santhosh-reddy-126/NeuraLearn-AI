@@ -4,7 +4,6 @@ import * as jwt_decode from 'jwt-decode'
 import { useEffect, useState } from 'react'
 
 import Login from './Pages/Auth/Login'
-import Signup from './Pages/Auth/Signup'
 import Dashboard from './Pages/Dashboard/Dashboard'
 import Profile from './Pages/Profile/Profile'
 import Curriculum from "./Pages/Curriculum/Curriculum"
@@ -55,7 +54,6 @@ function AppWrapper() {
       <ToastContainer />
       <Routes>
         <Route path="/" element={<Login onLogin={(t) => { setToken(t); localStorage.setItem('token', t) }} />} />
-        <Route path="/register" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/curriculum" element={<Curriculum />} />
