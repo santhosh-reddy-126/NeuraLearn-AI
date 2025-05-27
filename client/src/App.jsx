@@ -28,25 +28,6 @@ function AppWrapper() {
       navigate('/')
       return
     } 
-
-    try {
-      const decoded = jwt_decode(token)
-      const exp = decoded.exp * 1000 // convert to milliseconds
-      const now = Date.now()
-
-      if (exp < now) {
-        logout()
-        return
-      }
-
-      const timeoutId = setTimeout(() => {
-        logout()
-      }, exp - now)
-
-      return () => clearTimeout(timeoutId)
-    } catch {
-      logout()
-    }
   }, [token])
 
   return (
