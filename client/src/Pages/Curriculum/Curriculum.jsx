@@ -161,7 +161,8 @@ const Curriculum = () => {
       if (resp.data.success) {
         setCurriculum(resp.data.data);
       } else {
-        toast.error(resp.data.message);
+        console.log(resp.data.message);
+        toast.error("Bard Issue,Please try again after some time!");
       }
     } catch (err) {
       console.log(err)

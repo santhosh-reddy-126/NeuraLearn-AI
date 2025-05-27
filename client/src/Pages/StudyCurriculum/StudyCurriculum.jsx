@@ -127,6 +127,8 @@ const StudyCurriculum = () => {
         const resp = await axios.post(python + "explain-topic", { topic });
         if (resp.data.success) {
           val = resp.data.answer;
+        }else{
+          toast.error("Bard Issue,Please try again after some time!");
         }
       } catch (e) {
         console.log(e);
