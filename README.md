@@ -55,7 +55,7 @@ Earn **XP**, build **streaks**, and unlock **badges** to stay motivated and cons
 ## 🌐 Live Demo
 
 Try out **NeuraLearn AI** live:  
-🔗 [https://neuralearn-ai.vercel.app](https://neuralearn-ai.vercel.app)
+🔗 [https://neura-learn-ai.vercel.app/](https://neura-learn-ai.vercel.app/)
 
 ---
 
