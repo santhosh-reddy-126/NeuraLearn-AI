@@ -36,14 +36,14 @@ const TakeTest = () => {
                     duration = 5 * len * 60;
                     my_topics = temp_data.curriculum[`Day ${day}`].Subtopics;
                     setTestDuration(duration);
-                    generate_quiz(5 * len,my_topics, duration); // pass duration as argument
+                    generate_quiz(5 * len, my_topics, duration); // pass duration as argument
                }
           } catch (e) {
                console.log(e);
           }
      };
 
-     const generate_quiz = async (total,topics, duration) => {
+     const generate_quiz = async (total, topics, duration) => {
           try {
                const resp = await axios.post(python + "generate-quiz", {
                     total: total,
@@ -54,8 +54,8 @@ const TakeTest = () => {
                     nav(`/study-curriculum/${id}`);
                } else {
                     toast.info(resp.data.message);
-                    setquestions(resp.data.data.questions);
-                    setTimeLeft(duration); 
+                    setquestions(resp.data.questions);
+                    setTimeLeft(duration);
                }
           } catch (e) {
                console.log(e);
@@ -99,20 +99,23 @@ const TakeTest = () => {
 
      // Timer effect
      useEffect(() => {
-          if (showScore) return;
+          if (showScore || questions.length === 0) return;
+
           timerRef.current = setInterval(() => {
                setTimeLeft((prev) => {
                     if (prev <= 1) {
                          clearInterval(timerRef.current);
                          setShowScore(true);
-                         onTestComplete();
+                         if (questions.length > 0) onTestComplete(); // Guard onTestComplete call
                          return 0;
                     }
                     return prev - 1;
                });
           }, 1000);
+
           return () => clearInterval(timerRef.current);
-     }, [showScore]);
+     }, [showScore, questions.length]);
+
 
      useEffect(() => {
           getData();
@@ -133,9 +136,10 @@ const TakeTest = () => {
           } else {
                setShowScore(true);
                clearInterval(timerRef.current);
-               onTestComplete();
+               if (questions.length > 0) onTestComplete(); // Add safeguard here
           }
      };
+
 
      const handlePrev = () => {
           if (current > 0) setCurrent(current - 1);
@@ -279,16 +283,16 @@ const TakeTest = () => {
                                         <button className="test-btn" onClick={() => setReviewMode(true)}>
                                              Review Answers
                                         </button>
-                                        {showBadge && badge!=null ?
-                                        <div id="modalOverlay" className="hidden">
-                                             <div id="popup">
-                                                  <BadgePopUp
-                                                       show={showBadge}
-                                                       badge={badge}
-                                                       onClose={() => setShowBadge(false)}
-                                                  />
-                                             </div>
-                                        </div>: ""}
+                                        {showBadge && badge != null ?
+                                             <div id="modalOverlay" className="hidden">
+                                                  <div id="popup">
+                                                       <BadgePopUp
+                                                            show={showBadge}
+                                                            badge={badge}
+                                                            onClose={() => setShowBadge(false)}
+                                                       />
+                                                  </div>
+                                             </div> : ""}
                                    </div>
                               ) : (
                                    <div className="test-review">

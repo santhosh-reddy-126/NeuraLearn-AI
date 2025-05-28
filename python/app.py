@@ -17,7 +17,7 @@ import time
 import requests
 
 def get_answer_from_bard(prompt):
-    url = "https://bard-w2q9.onrender.com/ask"
+    url = "https://bard-ii8v.onrender.com/ask"
     payload = {"question": prompt}
     
     try:
@@ -162,35 +162,41 @@ def token_required(f):
     return wrapper
 
 
+import csv
+import json
+from io import StringIO
+from bardapi import Bard  # Assuming you're using bardapi
+
 def generate_quiz_by_topics(topics, questions_per_topic=2):
-    topic_list = ', '.join([f'"{topic}"' for topic in topics])
+    topic_list = ', '.join([f'"{t}"' for t in topics])
     prompt = (
-        f"For each of the following topics: [{topic_list}], generate {questions_per_topic} multiple choice quiz questions per topic. "
-        "Each question must have:\n"
-        "- 4 options\n"
-        "- 1 correct answer\n"
-        "- A topic tag(specifying the question topic)\n"
-        "Respond strictly in this JSON format:\n"
-        "{'questions': [\n"
-        "  {'topic': 'Topic Name', 'question': '', 'options': ['','','',''], 'answer': ''},\n"
-        "  ...\n"
-        "]}\n"
-        "No extra text, no markdown. Only valid JSON output.dont include nextline symbols inside it.send a json parsed string"
+        f"Please provide {questions_per_topic * len(topics)} quiz questions on topics: {topic_list} "
+        "as plain CSV text without any code block formatting or backticks. "
+        "The CSV should have these columns: topic, question, option1, option2, option3, option4, answer. "
+        "Do not include any extra line breaks inside fields, and do not wrap the CSV inside triple backticks or any other code formatting. "
+        "Just give me plain CSV content. Give column names as the first row."
     )
 
-    
-
     try:
-        response = get_answer_from_bard(prompt)
-        if response:
-            temp=re.sub(r'^```json\s*|```$', '', response).strip()
-            data = json.loads(temp)
-            return data
-        else:
-            return None
+        answer = Bard().get_answer(prompt).get('content')
+        csv_file = StringIO(answer)
+        reader = csv.DictReader(csv_file)
+
+        questions = []
+        for row in reader:
+            questions.append({
+                "topic": row["topic"].strip(),
+                "question": row["question"].strip(),
+                "options": [row["option1"].strip(), row["option2"].strip(), row["option3"].strip(), row["option4"].strip()],
+                "answer": row["answer"].strip()
+            })
+
+        return questions
+
     except Exception as e:
-        print("Bard error:", e)
+        print("Error generating questions:", e)
         return None
+
     
 def get_cluster_message(cluster):
     if cluster == 0:
@@ -412,33 +418,28 @@ def explain_topic():
         "Respond with only valid JSON in a ```json block, no explanation or markdown. Now explain the topic within 2400 characters:"
     )
 
-    max_attempts = 6
-    last_raw = ""
-    for attempt in range(max_attempts):
-        try:
-            raw_ans = get_answer_from_bard(explain_prompt + topic)
-            last_raw = raw_ans
+    try:
+        raw_ans = get_answer_from_bard(explain_prompt + topic)
 
-            match = re.search(r"```json\s*(.*?)\s*```", raw_ans, re.DOTALL | re.IGNORECASE)
-            json_str = match.group(1).strip() if match else raw_ans
+        match = re.search(r"```json\s*(.*?)\s*```", raw_ans, re.DOTALL | re.IGNORECASE)
+        json_str = match.group(1).strip() if match else raw_ans
 
-            ans_json = json.loads(json_str)
+        ans_json = json.loads(json_str)
 
-            required_keys = {"def", "imp", "comp", "steps", "ex", "form", "mistakes", "summary"}
-            if not required_keys.issubset(ans_json.keys()):
-                raise ValueError("Missing keys in JSON")
+        required_keys = {"def", "imp", "comp", "steps", "ex", "form", "mistakes", "summary"}
+        if not required_keys.issubset(ans_json.keys()):
+            raise ValueError("Missing keys in JSON")
 
-            return jsonify({"success": True, "answer": ans_json})
-        
-        except (json.JSONDecodeError, ValueError):
-            time.sleep(1)  # Wait a bit before retrying
-            continue
+        return jsonify({"success": True, "answer": ans_json})
 
-    return jsonify({
-        "success": False,
-        "message": "Tried 6 times but could not generate valid JSON.",
-        "raw": last_raw
-    })
+    except (json.JSONDecodeError, ValueError) as e:
+        return jsonify({
+            "success": False,
+            "message": "Failed to generate Content.",
+            "error": str(e),
+            "raw": raw_ans
+        })
+
 
 @app.route('/generate-curriculum', methods=['POST'])
 @token_required
@@ -452,7 +453,7 @@ def gen_curr():
         "in this JSON format only (no extra text): "
         "{'Day 1': {'Topic': '', 'Description': '', 'Subtopics': ['']}, 'Day 2': ...}. "
         "Use simple language, keep it short, structured, and well-formatted. "
-        "Each day must have equal topics.Each day can have maximum of 3 topics only"
+        "Each day must have equal topics.Each day can have maximum of 3 topics only.No topic should have (,) in name"
     )
 
     try:
@@ -483,29 +484,29 @@ def gen_quiz():
     if not topics:
         return jsonify({"success": False, "message": "Invalid input"})
 
-    qpt = 5  # Questions per topic
-    all_questions = []
+    qpt = 5
+    expected_total = qpt * len(topics)
 
-    for topic in topics:
-        topic_questions = []
-        attempts = 0
+    questions = generate_quiz_by_topics(topics, qpt)
 
-        while len(topic_questions) < qpt and attempts < 7:
-            res = generate_quiz_by_topics([topic], qpt - len(topic_questions))
+    if not questions or not isinstance(questions, list):
+        return jsonify({"success": False, "message": "Failed to generate quiz. Try again later."})
 
-            if res:
-                try:
-                    new_questions = res.get("questions", [])
-                    topic_questions.extend(new_questions)
-                except Exception as e:
-                    print(f"Error parsing questions for topic '{topic}': {e}")
-            attempts += 1
+    # Count how many questions we have per topic
+    topic_counts = {topic: 0 for topic in topics}
+    for q in questions:
+        topic = q.get("topic")
+        if topic in topic_counts:
+            topic_counts[topic] += 1
 
-        if len(topic_questions) < qpt:
-            print(f"Failed to generate enough questions for topic: {topic}")
-            continue  # Skip this topic if not enough questions
+    for topic, count in topic_counts.items():
+        if count < qpt:
+            return jsonify({"success": False, "message": f"Not enough questions for topic '{topic}'. Try again later."})
 
-        all_questions.extend(topic_questions)
+    return jsonify({"success": True, "questions": questions})
+
+
+
 
 
 
