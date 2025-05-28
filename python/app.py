@@ -178,7 +178,7 @@ def generate_quiz_by_topics(topics, questions_per_topic=2):
     )
 
     try:
-        answer = Bard().get_answer(prompt).get('content')
+        answer = get_answer_from_bard(prompt)
         csv_file = StringIO(answer)
         reader = csv.DictReader(csv_file)
 
