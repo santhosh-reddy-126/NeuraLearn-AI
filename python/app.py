@@ -488,6 +488,7 @@ def gen_quiz():
     expected_total = qpt * len(topics)
 
     questions = generate_quiz_by_topics(topics, qpt)
+    print(questions)
 
     if not questions or not isinstance(questions, list):
         return jsonify({"success": False, "message": "Failed to generate quiz. Try again later."})
