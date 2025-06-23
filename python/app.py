@@ -136,28 +136,6 @@ basic_query="if i just give any topic to explain , Give explanation in small wit
 
 SECRET_KEY = os.getenv("JWT_SECRET", "neuralearn_secret_key")
 
-from functools import wraps
-
-def token_required(f):
-    @wraps(f)  # <-- Add this line to preserve the original function's metadata
-    def wrapper(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
-
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({"message": "Token is missing or invalid"}), 403
-
-        token = auth_header.split(" ")[1]
-
-        try:
-            decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            request.user = decoded  # You can store user info in request
-        except jwt.ExpiredSignatureError:
-            return jsonify({"message": "Token has expired"}), 403
-        except jwt.InvalidTokenError:
-            return jsonify({"message": "Invalid token"}), 403
-
-        return f(*args, **kwargs)
-    return wrapper
 
 
 import csv
@@ -248,7 +226,6 @@ def ask_ai():
     return jsonify({"success":True,"answer": ans,"passed": passed})
 
 @app.route('/classify',methods=['POST'])
-@token_required
 def classify():
     data = request.get_json()
     id = data.get('user_id', '')
@@ -327,7 +304,6 @@ def weakness():
 
 
 @app.route('/user-dashboard-data', methods=['POST'])
-@token_required
 def user_dashboard_data():
     try:
         data = request.get_json()
@@ -440,7 +416,6 @@ def explain_topic():
 
 
 @app.route('/generate-curriculum', methods=['POST'])
-@token_required
 def gen_curr():
     data = request.get_json()
     goal = data.get('goal', '')
