@@ -127,8 +127,6 @@ SUPABASE_URL = os.getenv("SUPA_URL")
 SUPABASE_KEY = os.getenv("SUPA_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-
-os.environ["_BARD_API_KEY"]=os.getenv("BARD_API_KEY")
 app = Flask(__name__)
 CORS(app, resources={
     r"/*": {"origins": os.getenv("CLIENT_URL","http://localhost:5173")}
